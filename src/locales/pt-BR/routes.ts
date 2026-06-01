@@ -1,0 +1,28 @@
+export default {
+  'routes.title': 'Rotas',
+  'routes.button.add': 'Adicionar Rota',
+  'routes.table.routeTargets': 'Destinos da Rota',
+  'routes.table.traffic': 'Compartilhamento de Tráfego',
+  'routes.table.setAsFallback': 'Definir como Fallback',
+  'routes.form.target.title': 'Destinos da Rota',
+  'routes.form.target.add': 'Adicionar Destino da Rota',
+  'routes.form.target.fallback': 'Destino de Rota de Fallback',
+  'routes.form.target.weight': 'Peso',
+  'routes.form.target.model': 'Modelo',
+  'routes.form.metadata.title': 'Metadados',
+  'routes.form.metadata.add': 'Adicionar Metadados',
+  'routes.table.label.fallback': 'Fallback',
+  'routes.form.metadata.size': 'Tamanho',
+  'routes.form.metadata.activeSize': 'Tamanho Ativo',
+  'routes.form.metadata.tags': 'Tags',
+  'routes.form.metadata.maxTokens': 'Tokens Máximos',
+  'routes.form.metadata.dimension': 'Dimensões',
+  'routes.form.metadata.license': 'Licenças',
+  'routes.form.metadata.releaseDate': 'Data de Lançamento',
+  'routes.form.metadata.languages': 'Idiomas',
+  'routes.form.metadata.icons': 'Ícone',
+  'routes.form.metadata.uploadIcon': 'Enviar Ícone',
+  'routes.form.fallback.warning':
+    'As alterações no destino de rota de fallback entram em vigor após um minuto.',
+  'routes.form.weight.tips': 'Peso de tráfego do destino.'
+};

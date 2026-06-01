@@ -1,0 +1,27 @@
+export default {
+  'apikeys.title': 'Chaves de API',
+  'apikeys.table.apikeys': 'chaves',
+  'apikeys.table.key': 'Chave',
+  'apikeys.button.create': 'Adicionar Chave de API',
+  'apikeys.button.edit': 'Editar Chave de API',
+  'apikeys.title.save': 'Salvar Chave de API',
+  'apikeys.form.expiretime': 'Expiração',
+  'apikeys.form.apikey': 'Chave de API',
+  'apikeys.table.name': 'Nome da Chave',
+  'apikeys.table.save.tips':
+    'Certifique-se de copiar sua chave imediatamente. Você não poderá vê-la novamente.',
+  'apikeys.form.expiration.7days': '7 dias',
+  'apikeys.form.expiration.1month': '1 mês',
+  'apikeys.form.expiration.6months': '6 meses',
+  'apikeys.form.expiration.never': 'Sem expiração',
+  'apikeys.table.bindModels': 'Acesso a Modelos',
+  'apikeys.models.all': 'Todos os modelos',
+  'apikeys.models.selected': 'Modelos permitidos',
+  'apikeys.models.noModelsFound': 'Nenhum modelo encontrado',
+  'apikeys.accessScope.all': 'Todos',
+  'apikeys.accessScope.management': 'Gerenciamento da Plataforma',
+  'apikeys.accessScope.inference': 'APIs de Inferência',
+  'apikeys.access.permissions': 'Permissões de Acesso',
+  'apikeys.type.auto': 'Gerada automaticamente',
+  'apikeys.type.custom': 'Personalizada'
+};
