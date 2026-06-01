@@ -11,8 +11,14 @@ import {
 import { useIntl } from '@umijs/max';
 import { Form } from 'antd';
 import { useAtomValue } from 'jotai';
-import React, { forwardRef, useEffect, useImperativeHandle } from 'react';
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState
+} from 'react';
 import { ProviderType, ProviderValueMap } from '../config';
+import { FormContext } from '../config/form-context';
 import {
   ClusterFormData as FormData,
   ClusterListItem as ListItem
@@ -34,11 +40,10 @@ const ClusterForm: React.FC<AddModalProps> = forwardRef(
     const [form] = Form.useForm();
     const intl = useIntl();
     const [activeKey, setActiveKey] = React.useState<string[]>([]);
-    // K8s deployment options is its own top-level section (sibling of Advanced),
-    // open by default so the fields are visible without an extra click.
     const [k8sActiveKey, setK8sActiveKey] = React.useState<string[]>([
       'k8sOptions'
     ]);
+    const [submitAttempted, setSubmitAttempted] = useState(false);
     const advanceConfigRef = React.useRef<any>(null);
     const systemConfig = useAtomValue(systemConfigAtom);
 
@@ -59,20 +64,8 @@ const ClusterForm: React.FC<AddModalProps> = forwardRef(
       }
     }, [activeKey, action]);
 
-    // The backend models the optional k8s_options string knobs as
-    // Optional[str] and treats null/absent as "use the server default" or
-    // "no auth". Coerce empty form values to null before sending so a blank
-    // input is unambiguous rather than an empty string that defeats fallbacks.
     const normalizeOutgoing = (values: any): any => {
       const base: any = { ...values };
-      // Top-level cluster field shared by Docker and K8s. Trim then coerce a
-      // blank input to null so clearing it on edit (or a whitespace-only
-      // value) falls back to the server default rather than persisting an
-      // empty string.
-      if (base.system_default_container_registry !== undefined) {
-        base.system_default_container_registry =
-          base.system_default_container_registry?.trim() || null;
-      }
 
       const opts = base.k8s_options;
       if (!opts) return base;
@@ -88,32 +81,14 @@ const ClusterForm: React.FC<AddModalProps> = forwardRef(
         }));
       }
 
-      next.operatorImage = opts.operatorImage || null;
-      next.namespace = opts.namespace || null;
-
-      // Presence of gpuInstanceOptions is the enable flag; keep it only when
-      // the toggle left an object behind, coercing a blank address to null.
-      if (opts.gpuInstanceOptions) {
-        next.gpuInstanceOptions = {
-          gpuInstancesAccessStaticAddress:
-            opts.gpuInstanceOptions.gpuInstancesAccessStaticAddress || null
-        };
-      }
-
       return { ...base, k8s_options: next };
     };
 
-    const handleOnFinish = (_values: FormData) => {
+    const handleOnFinish = (values: FormData) => {
       const workerConfig = yaml2Json(advanceConfigRef.current?.getYamlValue());
-      // antd's onFinish only delivers values for registered Form.Items.
-      // Spreading those on top of `getFieldsValue(true)` clobbers nested
-      // objects (e.g. `k8s_options` would lose values set via setFieldValue),
-      // so we go straight to the full store.
-      const fullValues = form.getFieldsValue(true);
-
       onFinish(
         normalizeOutgoing({
-          ...fullValues,
+          ...values,
           worker_config: {
             ...workerConfig
           }
@@ -203,11 +178,12 @@ const ClusterForm: React.FC<AddModalProps> = forwardRef(
         };
       },
       validateFields: async () => {
-        // Run validation first to display any field errors. Then read the
-        // FULL store via `getFieldsValue(true)` so values that were set via
-        // setFieldValue on non-registered paths are still included in what we
-        // hand to the API.
-        await form.validateFields();
+        try {
+          await form.validateFields();
+        } catch (e) {
+          setSubmitAttempted(true);
+          throw e;
+        }
         const values = form.getFieldsValue(true);
 
         const workerConfig = yaml2Json(
@@ -223,108 +199,112 @@ const ClusterForm: React.FC<AddModalProps> = forwardRef(
       }
     }));
 
+    const handleOnFinishFailed = () => {
+      setSubmitAttempted(true);
+    };
+
     return (
-      <Form
-        name="clusterForm"
-        form={form}
-        onFinish={handleOnFinish}
-        preserve={false}
-        scrollToFirstError={true}
-        initialValues={currentData}
-      >
-        <Form.Item<FormData>
-          name="name"
-          rules={[
-            {
-              required: true,
-              message: intl.formatMessage(
-                { id: 'common.form.rule.input' },
+      <FormContext.Provider value={{ submitAttempted }}>
+        <Form
+          name="clusterForm"
+          form={form}
+          onFinish={handleOnFinish}
+          onFinishFailed={handleOnFinishFailed}
+          preserve={false}
+          scrollToFirstError={true}
+          initialValues={currentData}
+        >
+          <Form.Item<FormData>
+            name="name"
+            rules={[
+              {
+                required: true,
+                message: intl.formatMessage(
+                  { id: 'common.form.rule.input' },
+                  {
+                    name: intl.formatMessage({ id: 'common.table.name' })
+                  }
+                )
+              }
+            ]}
+          >
+            <CInput.Input
+              label={intl.formatMessage({ id: 'common.table.name' })}
+              required
+              trim={false}
+            ></CInput.Input>
+          </Form.Item>
+          <PluginExtraFields name="CreateOrgScopeField" context={{ action }} />
+          {provider === ProviderValueMap.DigitalOcean && (
+            <CloudProvider
+              provider={provider}
+              action={action}
+              credentialID={currentData?.credential_id}
+              credentialList={credentialList}
+            ></CloudProvider>
+          )}
+
+          <Form.Item<FormData>
+            name="description"
+            rules={[{ required: false }]}
+            style={{ marginBottom: 8 }}
+          >
+            <SealTextArea
+              scaleSize
+              label={intl.formatMessage({ id: 'common.table.description' })}
+            ></SealTextArea>
+          </Form.Item>
+
+          {provider === ProviderValueMap.Kubernetes && (
+            <CollapsePanel
+              accordion={false}
+              activeKey={k8sActiveKey}
+              onChange={(keys) =>
+                setK8sActiveKey(Array.isArray(keys) ? keys : [keys])
+              }
+              items={[
                 {
-                  name: intl.formatMessage({ id: 'common.table.name' })
+                  key: 'k8sOptions',
+                  label: intl.formatMessage({
+                    id: 'clusters.k8sOptions.title'
+                  }),
+                  forceRender: true,
+                  children: (
+                    <K8sPodSpec
+                      key={currentData?.id ?? 'new'}
+                      action={action}
+                      initialGpuInstanceOptions={
+                        currentData?.k8s_options?.gpuInstanceOptions
+                      }
+                    ></K8sPodSpec>
+                  )
                 }
-              )
-            }
-          ]}
-        >
-          <CInput.Input
-            label={intl.formatMessage({ id: 'common.table.name' })}
-            required
-            trim={false}
-          ></CInput.Input>
-        </Form.Item>
-        <PluginExtraFields name="CreateOrgScopeField" context={{ action }} />
-        {provider === ProviderValueMap.DigitalOcean && (
-          <CloudProvider
-            provider={provider}
-            action={action}
-            credentialID={currentData?.credential_id}
-            credentialList={credentialList}
-          ></CloudProvider>
-        )}
+              ]}
+            ></CollapsePanel>
+          )}
 
-        <Form.Item<FormData>
-          name="description"
-          rules={[{ required: false }]}
-          style={{ marginBottom: 8 }}
-        >
-          <SealTextArea
-            autoSize={{ minRows: 2, maxRows: 4 }}
-            label={intl.formatMessage({ id: 'common.table.description' })}
-          ></SealTextArea>
-        </Form.Item>
-
-        {provider === ProviderValueMap.Kubernetes && (
           <CollapsePanel
             accordion={false}
-            activeKey={k8sActiveKey}
-            onChange={(keys) =>
-              setK8sActiveKey(Array.isArray(keys) ? keys : [keys])
-            }
+            activeKey={activeKey}
+            onChange={handleOnCollapseChange}
             items={[
               {
-                key: 'k8sOptions',
-                label: intl.formatMessage({ id: 'clusters.k8sOptions.title' }),
+                key: 'advanceConfig',
+                label: intl.formatMessage({ id: 'resources.form.advanced' }),
                 forceRender: true,
                 children: (
-                  // Key by cluster id so the section fully remounts when the
-                  // active cluster changes. GpuInstanceOptionsForm seeds its
-                  // local state from initialValue only once (initializedRef),
-                  // so without a remount a reused form instance could carry a
-                  // previous cluster's GPU instance config into the next one.
-                  <K8sPodSpec
-                    key={currentData?.id ?? 'new'}
+                  <AdvanceConfig
                     action={action}
-                    initialGpuInstanceOptions={
-                      currentData?.k8s_options?.gpuInstanceOptions
-                    }
-                  ></K8sPodSpec>
+                    provider={provider}
+                    currentData={currentData}
+                    ref={advanceConfigRef}
+                  ></AdvanceConfig>
                 )
               }
             ]}
           ></CollapsePanel>
-        )}
-
-        <CollapsePanel
-          accordion={false}
-          activeKey={activeKey}
-          onChange={handleOnCollapseChange}
-          items={[
-            {
-              key: 'advanceConfig',
-              label: intl.formatMessage({ id: 'resources.form.advanced' }),
-              forceRender: true,
-              children: (
-                <AdvanceConfig
-                  action={action}
-                  provider={provider}
-                  currentData={currentData}
-                  ref={advanceConfigRef}
-                ></AdvanceConfig>
-              )
-            }
-          ]}
-        ></CollapsePanel>
-      </Form>
+        </Form>
+      </FormContext.Provider>
     );
   }
 );

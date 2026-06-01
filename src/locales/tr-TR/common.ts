@@ -55,6 +55,7 @@ export default {
   'common.button.viewevent': 'Olayları Görüntüle',
   'common.button.recreate': 'Yeniden Oluştur',
   'common.table.operation': 'İşlemler',
+  'common.table.creator': 'Oluşturan',
   'common.table.createTime': 'Oluşturulma',
   'common.table.updateTime': 'Güncellenme',
   'common.table.description': 'Açıklama',
@@ -288,5 +289,6 @@ export default {
   'common.image.limit.height': 'Image height must be {height}.',
   'common.remaining': 'Kalan {count}',
   'common.max': 'Maks. {count}',
-  'common.validate.group': 'Please complete the {group} configuration'
+  'common.validate.group': 'Please complete the {group} configuration',
+  'common.preferences': 'Tercihler'
 };

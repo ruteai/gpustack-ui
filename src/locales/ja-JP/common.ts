@@ -55,6 +55,7 @@ export default {
   'common.button.viewevent': 'イベントを表示',
   'common.button.recreate': '再作成',
   'common.table.operation': '操作',
+  'common.table.creator': '作成者',
   'common.table.createTime': '作成日時',
   'common.table.updateTime': '更新日時',
   'common.table.description': '説明',
@@ -285,7 +286,8 @@ export default {
   'common.image.limit.height': 'Image height must be {height}.',
   'common.remaining': '残り {count}',
   'common.max': '最大 {count}',
-  'common.validate.group': 'Please complete the {group} configuration'
+  'common.validate.group': 'Please complete the {group} configuration',
+  'common.preferences': 'Preferences'
 };
 
 // ========== To-Do: Translate Keys (Remove After Translation) ==========

@@ -55,6 +55,7 @@ export default {
   'common.button.viewevent': 'View Events',
   'common.button.recreate': 'Recreate',
   'common.table.operation': 'Operations',
+  'common.table.creator': 'Creator',
   'common.table.createTime': 'Created',
   'common.table.updateTime': 'Updated',
   'common.table.description': 'Description',
@@ -285,5 +286,6 @@ export default {
   'common.image.limit.height': 'Image height must be {height}.',
   'common.remaining': 'Remaining {count}',
   'common.max': 'Max {count}',
-  'common.validate.group': 'Please complete the {group} configuration'
+  'common.validate.group': 'Please complete the {group} configuration',
+  'common.preferences': 'Preferences'
 };
