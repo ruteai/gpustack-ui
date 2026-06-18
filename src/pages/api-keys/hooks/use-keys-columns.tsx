@@ -1,15 +1,28 @@
 // columns.ts
 import { tableSorter } from '@/config/settings';
-import { AutoTooltip, DropdownButtons, icons } from '@gpustack/core-ui';
+import { usePluginListColumns } from '@/plugins/list-extra-columns';
+import { DashboardOutlined } from '@ant-design/icons';
+import {
+  AutoTooltip,
+  DropdownButtons,
+  IconFont,
+  icons
+} from '@gpustack/core-ui';
 import { useIntl } from '@umijs/max';
-import { MenuProps, Tag } from 'antd';
+import { MenuProps, Tag, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import dayjs from 'dayjs';
 import { useMemo } from 'react';
 import { ListItem } from '../config/types';
 import type { APIKeyConfigAction } from '../plugin';
 
-type APIKeyAction = Global.ActionItem<ListItem> & {
+type APIKeyAction = Omit<Global.ActionItem<ListItem>, 'disabled' | 'label'> & {
+  // Per-row callback (function) is the host's default; placeholders use a
+  // plain boolean to render the menu item grayed out unconditionally.
+  disabled?: boolean | ((record: ListItem) => boolean);
+  // ReactNode allowed so disabled placeholders can render a Tooltip-
+  // wrapped label (paired with `locale: false`).
+  label: string | React.ReactNode;
   onClick?: (record: ListItem) => void;
 };
 
@@ -18,7 +31,10 @@ type RankedAction = APIKeyAction & { priority: number };
 interface ColumnsHookProps {
   handleSelect: (val: string, record: ListItem, item?: APIKeyAction) => void;
   sortOrder: string[];
-  is_admin?: boolean;
+  // Reveal the Creator column to callers who can see other users' keys
+  // (platform admin or current-Org owner). Members only see their own
+  // keys, so the column would be redundant for them.
+  showCreator?: boolean;
   configActions?: APIKeyConfigAction[];
   // Dispatches the click for a plugin-contributed dropdown entry to the
   // controller `useCreate()` returned for that entry.
@@ -28,11 +44,12 @@ interface ColumnsHookProps {
 const useModelsColumns = ({
   handleSelect,
   sortOrder,
-  is_admin,
+  showCreator,
   configActions = [],
   onConfigAction
 }: ColumnsHookProps): ColumnsType<ListItem> => {
   const intl = useIntl();
+  const pluginCols = usePluginListColumns('apiKeys');
 
   const actionList = useMemo<APIKeyAction[]>(() => {
     // Built-ins use a step-of-10 priority scale so plugins have room
@@ -65,12 +82,56 @@ const useModelsColumns = ({
       onClick: (record: ListItem) => onConfigAction?.(a.key, record)
     }));
 
-    return [...builtIns, ...fromPlugins].sort(
+    // Show disabled placeholders for IP Access Control / Quota Limit in
+    // the OSS build only — when the enterprise plugin contributes the
+    // real entry under the same key, skip the placeholder so the live
+    // action takes over. Keeps the dropdown's surface area consistent
+    // between editions while making the upgrade path discoverable.
+    const pluginKeys = new Set(configActions.map((a) => a.key));
+    const enterpriseTooltip = intl.formatMessage({
+      id: 'common.enterprise.feature'
+    });
+    const enterprisePlaceholder = (labelId: string): React.ReactNode => (
+      <Tooltip title={enterpriseTooltip} placement="left">
+        <span style={{ display: 'inline-block' }}>
+          {intl.formatMessage({ id: labelId })}
+        </span>
+      </Tooltip>
+    );
+    const placeholders: RankedAction[] = [];
+    if (!pluginKeys.has('ipConfig')) {
+      placeholders.push({
+        key: 'ipConfig',
+        label: enterprisePlaceholder('apikeys.button.ipConfig'),
+        locale: false,
+        icon: <IconFont type="icon-safe-ip" />,
+        disabled: true,
+        priority: 12
+      });
+    }
+    if (!pluginKeys.has('quotaLimit')) {
+      placeholders.push({
+        key: 'quotaLimit',
+        label: enterprisePlaceholder('quotaLimits.button.title'),
+        locale: false,
+        icon: <DashboardOutlined />,
+        disabled: true,
+        priority: 14
+      });
+    }
+
+    return [...builtIns, ...fromPlugins, ...placeholders].sort(
       (a, b) => a.priority - b.priority
     );
-  }, [configActions, onConfigAction]);
+  }, [intl, configActions, onConfigAction]);
 
   return useMemo(() => {
+    const pluginRendered = pluginCols.map((c) => ({
+      title: intl.formatMessage({ id: c.titleId }),
+      key: c.key,
+      ellipsis: { showTitle: false },
+      render: (_text: any, record: ListItem) => c.render(record)
+    }));
     return [
       {
         title: intl.formatMessage({ id: 'common.table.name' }),
@@ -99,6 +160,7 @@ const useModelsColumns = ({
           </span>
         )
       },
+      ...pluginRendered,
       {
         title: intl.formatMessage({ id: 'apikeys.table.key' }),
         dataIndex: 'masked_value',
@@ -180,7 +242,7 @@ const useModelsColumns = ({
         title: intl.formatMessage({ id: 'common.table.creator' }),
         dataIndex: 'user_name',
         key: 'user_name',
-        hidden: !is_admin,
+        hidden: !showCreator,
         render: (text: string) => (
           <AutoTooltip ghost style={{ maxWidth: 200 }}>
             {text || '-'}
@@ -216,7 +278,7 @@ const useModelsColumns = ({
         )
       }
     ];
-  }, [intl, is_admin, handleSelect, actionList]);
+  }, [intl, showCreator, handleSelect, actionList, pluginCols]);
 };
 
 export default useModelsColumns;

@@ -46,6 +46,7 @@ export default {
   'common.button.enabled': 'Активно',
   'common.button.disabled': 'Отключено',
   'common.button.upgrade': 'Обновить',
+  'common.enterprise.feature': 'Available in GPUStack Enterprise',
   'common.input.holder': 'Введите значение',
   'common.validate.value': 'Поле {name} обязательно',
   'common.button.edit': 'Редактировать',
@@ -66,6 +67,7 @@ export default {
   'common.search.name.placeholder': 'Фильтр по названию',
   'common.search.id.placeholder': 'Фильтр по ID',
   'common.filter.byId': 'Фильтр по ID',
+  'common.filter.byCreator': 'Фильтр по создателю',
   'common.table.type': 'Тип',
   'common.table.default': 'Значение по умолчанию',
   'common.copy.success': 'Скопировано!',
@@ -165,6 +167,7 @@ export default {
   'common.time.hour': 'Час',
   'common.time.minute': 'Минута',
   'common.issue.report': 'Сообщить о проблеме',
+  'common.github.star.tooltip': 'Поставьте нам звезду на GitHub',
   'common.social.discord': 'Присоединиться к Discord',
   'common.table.mark': 'Комментарий',
   'common.table.rollback.mark': 'Комментарий к откату',
@@ -257,6 +260,10 @@ export default {
   'common.login.auth': 'Аутентификация...',
   'common.login.auth.failed': 'Ошибка аутентификации',
   'common.login.password': 'Войти с паролем',
+  'common.login.username.holder': 'Введите имя пользователя',
+  'common.login.password.holder': 'Введите пароль',
+  'common.login.newpassword.holder': 'Введите новый пароль',
+  'common.login.confirm.holder': 'Введите пароль ещё раз',
   'common.external.login': 'Войти через {type}',
   'common.sso.noConfig':
     'Единый вход не настроен в этой системе. Пожалуйста, обратитесь к администратору.',
@@ -285,6 +292,7 @@ export default {
   'common.image.limit.height': 'Image height must be {height}.',
   'common.remaining': 'Остаток {count}',
   'common.max': 'Макс. {count}',
+  'common.max.count': 'Количество {label}',
   'common.validate.group': 'Please complete the {group} configuration',
   'common.preferences': 'Preferences'
 };

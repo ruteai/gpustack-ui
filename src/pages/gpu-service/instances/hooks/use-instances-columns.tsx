@@ -1,3 +1,5 @@
+import useCreatorColumn from '@/pages/gpu-service/hooks/use-creator-column';
+import { usePluginListColumns } from '@/plugins/list-extra-columns';
 import { ExportOutlined } from '@ant-design/icons';
 import {
   AutoTooltip,
@@ -6,71 +8,27 @@ import {
   StatusTag
 } from '@gpustack/core-ui';
 import { useAccess, useIntl } from '@umijs/max';
-import { Button, Flex } from 'antd';
+import { Button } from 'antd';
 import type { ColumnsType } from 'antd/lib/table';
 import dayjs from 'dayjs';
 import _ from 'lodash';
 import { Fragment, useMemo } from 'react';
-import { parseJsonSafe } from '../../utils';
 import { InstanceStatusLabelMap, rowActionList, status } from '../config';
-import { InstanceTypeSpec, ListItem } from '../config/types';
-import tableSyles from '../styles/table.module.less';
+import { ListItem } from '../config/types';
+import { renderInstanceType } from '../utils/render-instance-type';
 
-const buildResourcesData = (
-  instanceType: {
-    spec: InstanceTypeSpec;
-  },
-  options: {
-    count: number;
-  }
-) => {
-  const unitResourcesParsed = instanceType?.spec?.unitResourcesParsed;
-  const acceleratable = instanceType?.spec?.acceleratable;
-  const { count = 0 } = options;
-
-  if (acceleratable) {
-    return {
-      accelerator: _.toString(count),
-      cpu: unitResourcesParsed?.cpu?.cores
-        ? count * unitResourcesParsed?.cpu?.cores
-        : undefined,
-      ram: unitResourcesParsed?.ram?.value
-        ? count * unitResourcesParsed?.ram?.value
-        : undefined
-    };
-  }
-  return {};
-};
-
-const formatResources = (
-  instanceTypeSpec: { spec: InstanceTypeSpec },
-  record: ListItem
-) => {
-  const resources = buildResourcesData(instanceTypeSpec, {
-    count: _.toNumber(record.spec?.resources?.accelerator) || 0
-  });
-
-  if (!record.spec?.resources?.accelerator) {
-    return {
-      cpu: record.spec?.resources?.cpu
-        ? `${record.spec?.resources?.cpu}C`
-        : '-',
-      ram: record.spec?.resources?.ram
-        ? `${record.spec?.resources?.ram}`.replace('Gi', 'GB')
-        : '-',
-      localStorage: record.spec?.resources?.localStorage
-        ? `${record.spec?.resources?.localStorage}`.replace('Gi', 'GB')
-        : '-'
-    };
-  }
-
-  return {
-    cpu: resources.cpu ? `${resources.cpu}C` : '-',
-    ram: resources.ram ? `${resources.ram}GB` : '-',
-    localStorage: record.spec?.resources?.localStorage
-      ? `${record.spec?.resources?.localStorage}`.replace('Gi', 'GB')
-      : undefined
-  };
+const buildRowActions = (record: ListItem) => {
+  return rowActionList
+    .filter((action) => (action.show ? action.show(record) : true))
+    .map(({ show, disabled, ...action }) => ({
+      ...action,
+      props: {
+        ...action.props,
+        disabled: disabled
+          ? disabled(record)
+          : (action.props?.disabled ?? false)
+      }
+    }));
 };
 
 type ConnectEntry =
@@ -130,61 +88,29 @@ interface ColumnsHookProps {
   handleSelect: (val: string, record: ListItem) => void;
   clusterList: Global.BaseOption<number>[];
   sortOrder: string[];
+  // name → capacity (e.g. "20Gi") for referenced persistent volumes, so the
+  // Disk → Persistent row can show the size instead of just the PV name.
+  pvCapacityByName?: Record<string, string>;
 }
 
 const useInstancesColumns = ({
   handleSelect,
   clusterList,
-  sortOrder
+  sortOrder,
+  pvCapacityByName
 }: ColumnsHookProps): ColumnsType<ListItem> => {
   const intl = useIntl();
   const access = useAccess();
-
-  const renderInstanceType = (record: ListItem) => {
-    const description =
-      parseJsonSafe<any>(record?.description || '{}', {}).spec || {};
-
-    const resources = formatResources({ spec: description }, record);
-
-    return (
-      <Flex align="flex-start" orientation="vertical">
-        <AutoTooltip
-          ghost
-          title={
-            <span>
-              {description.acceleratable
-                ? `${description.product} x ${record.spec?.resources?.accelerator}`
-                : 'CPU'}
-            </span>
-          }
-        >
-          <span className="text-primary">
-            {description.acceleratable
-              ? `${description.product} x ${record.spec?.resources?.accelerator}`
-              : 'CPU'}
-          </span>
-        </AutoTooltip>
-        <Flex
-          align="center"
-          style={{ fontSize: 13, color: 'var(--ant-color-text-tertiary)' }}
-        >
-          <span>{resources.cpu}</span>
-          <span className={tableSyles.dot} />
-          <span>
-            {intl.formatMessage({ id: 'gpuservice.instance.ram' })}:{' '}
-            {resources.ram}
-          </span>
-          <span className={tableSyles.dot} />
-          <span>
-            {intl.formatMessage({ id: 'gpuservice.instance.disk' })}:{' '}
-            {resources.localStorage}
-          </span>
-        </Flex>
-      </Flex>
-    );
-  };
+  const pluginCols = usePluginListColumns('gpuInstances');
+  const creatorCols = useCreatorColumn<ListItem>('gpuInstances');
 
   return useMemo(() => {
+    const pluginRendered = pluginCols.map((c) => ({
+      title: intl.formatMessage({ id: c.titleId }),
+      key: c.key,
+      ellipsis: { showTitle: false },
+      render: (_text: any, record: ListItem) => c.render(record)
+    }));
     return [
       {
         title: intl.formatMessage({ id: 'common.table.name' }),
@@ -195,7 +121,11 @@ const useInstancesColumns = ({
           showTitle: false
         },
         render: (text: string, record: ListItem) => (
-          <AutoTooltip ghost style={{ maxWidth: 360 }}>
+          <AutoTooltip
+            ghost
+            title={<span>{record.displayName || text}</span>}
+            maxWidth={300}
+          >
             <span className="text-primary">{record.displayName || text}</span>
           </AutoTooltip>
         )
@@ -312,9 +242,11 @@ const useInstancesColumns = ({
         ellipsis: {
           showTitle: false
         },
-        width: 260,
-        render: (_text: string, record: ListItem) => renderInstanceType(record)
+        width: 300,
+        render: (_text: string, record: ListItem) =>
+          renderInstanceType(record, { intl, pvCapacityByName })
       },
+      ...pluginRendered,
       {
         title: intl.formatMessage({ id: 'clusters.title' }),
         dataIndex: 'clusterId',
@@ -328,6 +260,7 @@ const useInstancesColumns = ({
           </AutoTooltip>
         )
       },
+      ...creatorCols,
       {
         title: intl.formatMessage({ id: 'common.table.createTime' }),
         dataIndex: 'created_at',
@@ -350,15 +283,25 @@ const useInstancesColumns = ({
         ellipsis: {
           showTitle: false
         },
-        render: (_text, record) => (
-          <DropdownButtons
-            items={rowActionList}
-            onSelect={(val) => handleSelect(val, record)}
-          />
-        )
+        render: (_text, record) => {
+          return (
+            <DropdownButtons
+              items={buildRowActions(record)}
+              onSelect={(val) => handleSelect(val, record)}
+            />
+          );
+        }
       }
     ];
-  }, [handleSelect, sortOrder, clusterList, intl]);
+  }, [
+    handleSelect,
+    sortOrder,
+    clusterList,
+    intl,
+    pvCapacityByName,
+    pluginCols,
+    creatorCols
+  ]);
 };
 
 export default useInstancesColumns;

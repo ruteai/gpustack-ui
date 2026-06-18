@@ -1,3 +1,5 @@
+import useCreatorColumn from '@/pages/gpu-service/hooks/use-creator-column';
+import { usePluginListColumns } from '@/plugins/list-extra-columns';
 import { AutoTooltip, DropdownButtons } from '@gpustack/core-ui';
 import { useIntl } from '@umijs/max';
 import type { ColumnsType } from 'antd/lib/table';
@@ -18,7 +20,15 @@ const useStorageColumns = ({
   sortOrder
 }: ColumnsHookProps): ColumnsType<ListItem> => {
   const intl = useIntl();
+  const pluginCols = usePluginListColumns('gpuStorage');
+  const creatorCols = useCreatorColumn<ListItem>('gpuStorage');
   return useMemo(() => {
+    const pluginRendered = pluginCols.map((c) => ({
+      title: intl.formatMessage({ id: c.titleId }),
+      key: c.key,
+      ellipsis: { showTitle: false },
+      render: (_text: any, record: ListItem) => c.render(record)
+    }));
     return [
       {
         title: intl.formatMessage({ id: 'common.table.name' }),
@@ -29,11 +39,16 @@ const useStorageColumns = ({
           showTitle: false
         },
         render: (text: string, record: ListItem) => (
-          <AutoTooltip ghost style={{ maxWidth: 360 }}>
+          <AutoTooltip
+            ghost
+            style={{ maxWidth: 360 }}
+            title={<span>{record.displayName || text}</span>}
+          >
             <span className="text-primary">{record.displayName || text}</span>
           </AutoTooltip>
         )
       },
+      ...pluginRendered,
       {
         title: intl.formatMessage({ id: 'common.table.type' }),
         dataIndex: ['spec', 'type'],
@@ -55,6 +70,7 @@ const useStorageColumns = ({
         sorter: false,
         render: (value: string) => (value ? value.replace(/Gi$/, 'GB') : '-')
       },
+      ...creatorCols,
       // {
       //   title: intl.formatMessage({ id: 'common.table.status' }),
       //   dataIndex: ['status', 'phase'],
@@ -98,7 +114,14 @@ const useStorageColumns = ({
         )
       }
     ];
-  }, [handleSelect, sortOrder, storageClassList, intl]);
+  }, [
+    handleSelect,
+    sortOrder,
+    storageClassList,
+    intl,
+    pluginCols,
+    creatorCols
+  ]);
 };
 
 export default useStorageColumns;

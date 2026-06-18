@@ -1,3 +1,5 @@
+import useCreatorColumn from '@/pages/gpu-service/hooks/use-creator-column';
+import { usePluginListColumns } from '@/plugins/list-extra-columns';
 import { FolderOutlined } from '@ant-design/icons';
 import {
   AutoTooltip,
@@ -46,7 +48,15 @@ const useStorageTypeColumns = ({
   sortOrder
 }: ColumnsHookProps): ColumnsType<ListItem> => {
   const intl = useIntl();
+  const pluginCols = usePluginListColumns('gpuStorageTypes');
+  const creatorCols = useCreatorColumn<ListItem>('gpuStorageTypes');
   return useMemo(() => {
+    const pluginRendered = pluginCols.map((c) => ({
+      title: intl.formatMessage({ id: c.titleId }),
+      key: c.key,
+      ellipsis: { showTitle: false },
+      render: (_text: any, record: ListItem) => c.render(record)
+    }));
     return [
       {
         title: intl.formatMessage({ id: 'common.table.name' }),
@@ -55,17 +65,23 @@ const useStorageTypeColumns = ({
         sorter: true,
         ellipsis: { showTitle: false },
         render: (text: string, record: ListItem) => (
-          <AutoTooltip ghost minWidth={20}>
+          <AutoTooltip
+            ghost
+            minWidth={20}
+            title={<span>{record.displayName || text}</span>}
+          >
             <span className="text-primary">{record.displayName || text}</span>
           </AutoTooltip>
         )
       },
+      ...pluginRendered,
       {
         title: intl.formatMessage({ id: 'common.table.type' }),
         key: 'kind',
         sorter: false,
         render: (_text, record) => getKindLabel(record)
       },
+      ...creatorCols,
       // {
       //   title: intl.formatMessage({ id: 'common.table.description' }),
       //   dataIndex: 'description',
@@ -102,7 +118,7 @@ const useStorageTypeColumns = ({
         )
       }
     ];
-  }, [handleSelect, sortOrder, intl]);
+  }, [handleSelect, sortOrder, intl, pluginCols, creatorCols]);
 };
 
 export default useStorageTypeColumns;

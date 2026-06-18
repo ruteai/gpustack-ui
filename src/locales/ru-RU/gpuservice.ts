@@ -14,7 +14,11 @@ export default {
   'gpuservice.template.command.placeholder':
     'Разделяйте аргументы пробелами; аргументы с пробелами заключайте в кавычки, например: /bin/bash -c "echo hello world"',
   'gpuservice.template.mountPath': 'Путь монтирования',
+  'gpuservice.template.mountPath.tips':
+    'Путь, по которому том хранилища монтируется по умолчанию при создании экземпляра из этого шаблона. Может использоваться для сохранения данных, которые нужно сохранить во время работы экземпляра.',
   'gpuservice.template.containerDisk': 'Диск контейнера (GB)',
+  'gpuservice.template.containerDisk.tips':
+    'Размер системного диска контейнера.',
   'gpuservice.template.memory': 'Память (GB)',
   'gpuservice.instance.containerDisk.remaining':
     'Диск контейнера (Макс. {count} GB)',
@@ -100,10 +104,13 @@ export default {
   'gpuservice.instance.templates': 'Шаблоны экземпляров',
   'gpuservice.instance.section.storage': 'Том хранилища',
   'gpuservice.instance.type.required': 'Выберите тип экземпляра',
+  'gpuservice.instance.type.noAvailable': 'Нет доступных типов экземпляров',
   'gpuservice.instance.gpuCount': 'Количество GPU',
   'gpuservice.instance.gpuCount.required': 'Введите количество GPU',
   'gpuservice.instance.gpuCount.max': 'Выберите максимум {count} GPU-карт',
   'gpuservice.instance.gpuCount.min': 'Выберите минимум {count} GPU-карт',
+  'gpuservice.instance.cpuCount.max': 'Выберите максимум {count} ядер CPU',
+  'gpuservice.instance.cpuCount.min': 'Выберите минимум {count} ядер CPU',
   'gpuservice.instance.gpuCount.noAvailable':
     'Нет доступных ресурсов GPU, выберите другой тип экземпляра.',
   'gpuservice.instance.gpuCount.zero': 'Только CPU, для подготовки окружения.',
@@ -111,7 +118,13 @@ export default {
   'gpuservice.instance.sliced': 'Разделено',
   'gpuservice.instance.memory': 'VRAM',
   'gpuservice.instance.ram': 'RAM',
+  'gpuservice.instance.os': 'ОС',
+  'gpuservice.instance.arch': 'Архитектура',
   'gpuservice.instance.disk': 'Диск',
+  'gpuservice.table.count': 'Количество',
+  'gpuservice.instance.disk.system': 'Системный диск',
+  'gpuservice.instance.disk.ephemeral': 'Временное хранилище',
+  'gpuservice.instance.disk.persistent': 'Постоянное хранилище',
   'gpuservice.instance.search.type.placeholder': 'Поиск по имени',
   'gpuservice.instance.search.template.placeholder':
     'Поиск по имени шаблона, образу или пути монтирования',
@@ -144,7 +157,7 @@ export default {
   'gpuservice.storage.persistent': 'Постоянное',
   'gpuservice.storage.temporary': 'Временное',
   'gpuservice.storage.persistentVolume': 'Постоянное',
-  'gpuservice.storage.persistentVolume.required': 'Выберите постоянный том',
+  'gpuservice.storage.persistentVolume.required': 'Выберите хранилище',
   'gpuservice.storage.persistentVolume.capacity': 'Ёмкость (ГБ)',
   'gpuservice.storage.persistentVolume.capacity.required': 'Введите ёмкость',
   'gpuservice.storage.persistentVolume.releaseWithInstance':
@@ -157,5 +170,10 @@ export default {
   'gpuservice.storage.temporary.tips':
     'Data is cleared when the instance stops.',
   'gpuservice.storage.persistentVolume.tips':
-    'Data persists across restarts and is deleted only when the instance is terminated. Cannot be shared with other instances.'
+    'Data persists across instance restarts. Persistent volumes remain intact after instance termination and can be shared by multiple instances.',
+  'gpuservice.form.storage.select': 'Выберите хранилище',
+  'gpuservice.creator': 'Создатель',
+  'gpuservice.owner.global': 'Глобальный',
+  'gpuservice.template.group.yours': 'Ваши шаблоны',
+  'gpuservice.template.group.global': 'Глобальные шаблоны'
 };

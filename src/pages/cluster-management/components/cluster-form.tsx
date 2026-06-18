@@ -25,7 +25,10 @@ import {
 } from '../config/types';
 import AdvanceConfig from '../step-forms/advance-config';
 import CloudProvider from './cloud-provider-form';
-import K8sPodSpec from './k8s-pod-spec';
+import K8sAdvancedOptions, {
+  ClusterTypeSelector,
+  K8sOptionsChangeWatcher
+} from './k8s-pod-spec';
 
 type AddModalProps = {
   action: PageActionType;
@@ -33,16 +36,28 @@ type AddModalProps = {
   provider: ProviderType;
   credentialList: Global.BaseOption<number>[];
   onFinish: (values: FormData) => void;
+  onFinishFailed?: (errorInfo: any) => void;
+  // Reports whether the user has changed any k8s_options field, so the parent
+  // can show the "re-run registration" notice in the footer.
+  onK8sOptionsChange?: (changed: boolean) => void;
   ref?: any;
 };
 const ClusterForm: React.FC<AddModalProps> = forwardRef(
-  ({ action, provider, currentData, credentialList, onFinish }, ref) => {
+  (
+    {
+      action,
+      provider,
+      currentData,
+      credentialList,
+      onFinish,
+      onFinishFailed,
+      onK8sOptionsChange
+    },
+    ref
+  ) => {
     const [form] = Form.useForm();
     const intl = useIntl();
     const [activeKey, setActiveKey] = React.useState<string[]>([]);
-    const [k8sActiveKey, setK8sActiveKey] = React.useState<string[]>([
-      'k8sOptions'
-    ]);
     const [submitAttempted, setSubmitAttempted] = useState(false);
     const advanceConfigRef = React.useRef<any>(null);
     const systemConfig = useAtomValue(systemConfigAtom);
@@ -199,8 +214,9 @@ const ClusterForm: React.FC<AddModalProps> = forwardRef(
       }
     }));
 
-    const handleOnFinishFailed = () => {
+    const handleOnFinishFailed = (errorInfo: any) => {
       setSubmitAttempted(true);
+      onFinishFailed?.(errorInfo);
     };
 
     return (
@@ -247,7 +263,10 @@ const ClusterForm: React.FC<AddModalProps> = forwardRef(
           <Form.Item<FormData>
             name="description"
             rules={[{ required: false }]}
-            style={{ marginBottom: 8 }}
+            style={{
+              marginBottom:
+                provider === ProviderValueMap.Kubernetes ? undefined : 8
+            }}
           >
             <SealTextArea
               scaleSize
@@ -255,33 +274,7 @@ const ClusterForm: React.FC<AddModalProps> = forwardRef(
             ></SealTextArea>
           </Form.Item>
 
-          {provider === ProviderValueMap.Kubernetes && (
-            <CollapsePanel
-              accordion={false}
-              activeKey={k8sActiveKey}
-              onChange={(keys) =>
-                setK8sActiveKey(Array.isArray(keys) ? keys : [keys])
-              }
-              items={[
-                {
-                  key: 'k8sOptions',
-                  label: intl.formatMessage({
-                    id: 'clusters.k8sOptions.title'
-                  }),
-                  forceRender: true,
-                  children: (
-                    <K8sPodSpec
-                      key={currentData?.id ?? 'new'}
-                      action={action}
-                      initialGpuInstanceOptions={
-                        currentData?.k8s_options?.gpuInstanceOptions
-                      }
-                    ></K8sPodSpec>
-                  )
-                }
-              ]}
-            ></CollapsePanel>
-          )}
+          {provider === ProviderValueMap.Kubernetes && <ClusterTypeSelector />}
 
           <CollapsePanel
             accordion={false}
@@ -293,16 +286,32 @@ const ClusterForm: React.FC<AddModalProps> = forwardRef(
                 label: intl.formatMessage({ id: 'resources.form.advanced' }),
                 forceRender: true,
                 children: (
-                  <AdvanceConfig
-                    action={action}
-                    provider={provider}
-                    currentData={currentData}
-                    ref={advanceConfigRef}
-                  ></AdvanceConfig>
+                  <>
+                    {provider === ProviderValueMap.Kubernetes && (
+                      <K8sAdvancedOptions
+                        key={currentData?.id ?? 'new'}
+                        action={action}
+                      ></K8sAdvancedOptions>
+                    )}
+                    <AdvanceConfig
+                      action={action}
+                      provider={provider}
+                      currentData={currentData}
+                      ref={advanceConfigRef}
+                    ></AdvanceConfig>
+                  </>
                 )
               }
             ]}
           ></CollapsePanel>
+
+          {provider === ProviderValueMap.Kubernetes && onK8sOptionsChange && (
+            <K8sOptionsChangeWatcher
+              action={action}
+              currentData={currentData}
+              onChange={onK8sOptionsChange}
+            />
+          )}
         </Form>
       </FormContext.Provider>
     );

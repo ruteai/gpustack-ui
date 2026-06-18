@@ -13,7 +13,10 @@ export default {
   'gpuservice.template.command.placeholder':
     'Argümanları boşlukla ayırın; boşluk içeren argümanları tırnak içine alın, örn.: /bin/bash -c "echo hello world"',
   'gpuservice.template.mountPath': 'Bağlama Yolu',
+  'gpuservice.template.mountPath.tips':
+    'Bu şablondan bir örnek oluşturulurken depolama biriminin varsayılan olarak bağlanacağı yol. Örnek çalışırken saklanması gereken verileri kalıcı hale getirmek için kullanılabilir.',
   'gpuservice.template.containerDisk': 'Konteyner Diski (GB)',
+  'gpuservice.template.containerDisk.tips': 'Konteyner sistem diskinin boyutu.',
   'gpuservice.template.memory': 'Bellek (GB)',
   'gpuservice.instance.containerDisk.remaining':
     'Konteyner Diski (Maks. {count} GB)',
@@ -97,10 +100,13 @@ export default {
   'gpuservice.instance.templates': 'Örnek Şablonları',
   'gpuservice.instance.section.storage': 'Depolama Hacmi',
   'gpuservice.instance.type.required': 'Lütfen bir örnek türü seçin',
+  'gpuservice.instance.type.noAvailable': 'Kullanılabilir örnek türü yok',
   'gpuservice.instance.gpuCount': 'GPU Sayısı',
   'gpuservice.instance.gpuCount.required': 'Lütfen GPU sayısını girin',
   'gpuservice.instance.gpuCount.max': 'En fazla {count} GPU kartı seçin',
   'gpuservice.instance.gpuCount.min': 'En az {count} GPU kartı seçin',
+  'gpuservice.instance.cpuCount.max': 'En fazla {count} CPU çekirdeği seçin',
+  'gpuservice.instance.cpuCount.min': 'En az {count} CPU çekirdeği seçin',
   'gpuservice.instance.gpuCount.noAvailable':
     'Kullanılabilir GPU kaynağı yok, lütfen başka bir örnek türü seçin.',
   'gpuservice.instance.gpuCount.zero': 'Yalnızca CPU, ortam hazırlığı için.',
@@ -108,7 +114,13 @@ export default {
   'gpuservice.instance.sliced': 'Bölünmüş',
   'gpuservice.instance.memory': 'VRAM',
   'gpuservice.instance.ram': 'RAM',
+  'gpuservice.instance.os': 'OS',
+  'gpuservice.instance.arch': 'Mimari',
   'gpuservice.instance.disk': 'Disk',
+  'gpuservice.table.count': 'Sayı',
+  'gpuservice.instance.disk.system': 'Sistem Diski',
+  'gpuservice.instance.disk.ephemeral': 'Geçici Depolama',
+  'gpuservice.instance.disk.persistent': 'Kalıcı Depolama',
   'gpuservice.instance.search.type.placeholder': 'Ada göre ara',
   'gpuservice.instance.search.template.placeholder':
     'Şablon adına, imaja veya bağlama yoluna göre ara',
@@ -142,8 +154,7 @@ export default {
   'gpuservice.storage.persistent': 'Kalıcı',
   'gpuservice.storage.temporary': 'Geçici',
   'gpuservice.storage.persistentVolume': 'Kalıcı',
-  'gpuservice.storage.persistentVolume.required':
-    'Lütfen bir kalıcı hacim seçin',
+  'gpuservice.storage.persistentVolume.required': 'Lütfen bir depolama seçin',
   'gpuservice.storage.persistentVolume.capacity': 'Kapasite (GB)',
   'gpuservice.storage.persistentVolume.capacity.required':
     'Lütfen kapasiteyi girin',
@@ -157,5 +168,10 @@ export default {
   'gpuservice.storage.temporary.tips':
     'Data is cleared when the instance stops.',
   'gpuservice.storage.persistentVolume.tips':
-    'Data persists across restarts and is deleted only when the instance is terminated. Cannot be shared with other instances.'
+    'Data persists across instance restarts. Persistent volumes remain intact after instance termination and can be shared by multiple instances.',
+  'gpuservice.form.storage.select': 'Depolamayı Seç',
+  'gpuservice.creator': 'Oluşturan',
+  'gpuservice.owner.global': 'Genel',
+  'gpuservice.template.group.yours': 'Şablonlarınız',
+  'gpuservice.template.group.global': 'Genel Şablonlar'
 };

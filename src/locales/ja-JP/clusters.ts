@@ -39,7 +39,7 @@ export default {
   'clusters.workerpool.batchSize.desc':
     'Number of workers created simultaneously in the Worker pool',
   'clusters.create.addworker.tips':
-    'Please make sure the <a href={link} target="_blank">prerequisites</a> for {label} are met before executing the following command.',
+    'Please make sure the <a href={link} target="_blank">prerequisites</a> are met before executing the following command.',
   'clusters.create.addCommand.tips':
     'On the Worker that needs to be added, run the following command to join it to the cluster.',
   'clusters.create.addCommand.k8s.tips':
@@ -70,8 +70,13 @@ export default {
     'For <span class="bold-text">non-Docker</span> clusters, please register clusters or manage worker pools from the Clusters page.',
   'clusters.addworker.selectGPU': 'Select GPU Vendor',
   'clusters.addworker.selectGPU.multiTag': 'Multi-select',
+  'clusters.addworker.selectGPU.subtitle':
+    '複数の GPU ベンダーを選択するか、CPU クラスター専用の場合は選択不要です',
   'clusters.addworker.checkEnv': 'Check Environment',
+  'clusters.addworker.checkEnv.cpuOnlyTips':
+    '以下のコマンドを使用して、Kubernetes クラスターに少なくとも 1 つのレディーノードがあることを確認してください。CPU クラスターを登録しています。',
   'clusters.addworker.specifyArgs': 'Specify Arguments',
+  'clusters.addworker.dtkVersion': 'DTK バージョン',
   'clusters.addworker.runCommand': 'Run Command',
   'clusters.addworker.specifyWorkerIP': 'Worker IP',
   'clusters.addworker.detectWorkerIP': 'Worker IP を自動検出',
@@ -110,6 +115,8 @@ export default {
     '{count} new workers have been added to the cluster.',
   'clusters.create.serverUrl': 'GPUStack Server URL',
   'clusters.create.workerConfig': 'Worker Configuration',
+  'clusters.edit.k8sOptions.changed.tip':
+    'Kubernetes オプションを変更しました。変更を有効にするには、対象クラスターで登録コマンドを再実行してください。',
   'clusters.addworker.containerName': 'Worker Container Name',
   'clusters.addworker.containerName.tips':
     'Specify a name for the worker container.',
@@ -137,7 +144,7 @@ export default {
   'clusters.addworker.theadNotes-02':
     'T-Head PPU uses the Container Device Interface (CDI) for device injection and requires the <span class="bold-text">/var/run/cdi</span> directory to be available for CDI generation.',
   'clusters.addworker.nvidiaNotes':
-    'The built-in inference backends in GPUStack v2.1 require <span class="bold-text">CUDA 12.6+</span>. Please ensure your NVIDIA driver version is <span class="bold-text">560</span> or newer.',
+    'The built-in inference backends in GPUStack require <span class="bold-text">CUDA 12.8+</span>. Please ensure your NVIDIA driver version is <span class="bold-text">570</span> or newer.',
   'clusters.volume.title': 'Volume Mounts',
   'clusters.volume.name': 'Volume Name',
   'clusters.volume.mountPath': 'Container Path',
@@ -180,9 +187,14 @@ export default {
   'clusters.namespace.title': 'Namespace',
   'clusters.namespace.tip':
     'Kubernetes namespace the cluster’s manifests render into. Leave empty to use gpustack-system.',
-  'clusters.gpuInstances.title': 'GPU Instance Service',
-  'clusters.gpuInstances.tip': 'Enable GPU instance support for this cluster.',
-  'clusters.gpuInstances.staticAddress': 'Static Access Address',
+  'clusters.clusterType.title': 'Cluster Type',
+  'clusters.modelService.title': 'Model Service',
+  'clusters.modelService.tip':
+    'For LLM inference and API serving — e.g. exposing model APIs and token-based services.',
+  'clusters.gpuInstances.title': 'GPU Service',
+  'clusters.gpuInstances.tip':
+    'For on-demand GPU compute — e.g. interactive development, training jobs, or custom environments.',
+  'clusters.gpuInstances.staticAddress': 'GPU Service Static Access Address',
   'clusters.gpuInstances.staticAddress.tip':
     'Static address the operator uses to access GPU instances in this cluster (e.g. a LoadBalancer VIP). Optional.'
 };

@@ -1,3 +1,5 @@
+import useCreatorColumn from '@/pages/gpu-service/hooks/use-creator-column';
+import { usePluginListColumns } from '@/plugins/list-extra-columns';
 import { AutoTooltip, DropdownButtons, icons } from '@gpustack/core-ui';
 import { useIntl } from '@umijs/max';
 import type { ColumnsType } from 'antd/lib/table';
@@ -33,7 +35,15 @@ const usePublicKeyColumns = ({
   sortOrder
 }: ColumnsHookProps): ColumnsType<ListItem> => {
   const intl = useIntl();
+  const pluginCols = usePluginListColumns('gpuPublicKeys');
+  const creatorCols = useCreatorColumn<ListItem>('gpuPublicKeys');
   return useMemo(() => {
+    const pluginRendered = pluginCols.map((c) => ({
+      title: intl.formatMessage({ id: c.titleId }),
+      key: c.key,
+      ellipsis: { showTitle: false },
+      render: (_text: any, record: ListItem) => c.render(record)
+    }));
     return [
       {
         title: intl.formatMessage({ id: 'common.table.name' }),
@@ -44,11 +54,17 @@ const usePublicKeyColumns = ({
           showTitle: false
         },
         render: (text: string, record: ListItem) => (
-          <AutoTooltip ghost style={{ maxWidth: 360 }}>
+          <AutoTooltip
+            ghost
+            style={{ maxWidth: 360 }}
+            title={<span>{record.displayName || text}</span>}
+          >
             <span className="text-primary">{record.displayName || text}</span>
           </AutoTooltip>
         )
       },
+      ...pluginRendered,
+      ...creatorCols,
       {
         title: intl.formatMessage({ id: 'common.table.createTime' }),
         dataIndex: 'created_at',
@@ -76,7 +92,7 @@ const usePublicKeyColumns = ({
         )
       }
     ];
-  }, [handleSelect, sortOrder, intl]);
+  }, [handleSelect, sortOrder, intl, pluginCols, creatorCols]);
 };
 
 export default usePublicKeyColumns;

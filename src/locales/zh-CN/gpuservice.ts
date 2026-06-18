@@ -13,10 +13,13 @@ export default {
   'gpuservice.template.command.placeholder':
     '使用空格分隔参数；含空格的参数请用引号包裹，例如：/bin/bash -c "echo hello world"',
   'gpuservice.template.mountPath': '挂载路径',
-  'gpuservice.template.containerDisk': '容器磁盘(GB)',
-  'gpuservice.template.memory': '内存(GB)',
-  'gpuservice.instance.containerDisk.remaining': '容器磁盘(最大{count}GB)',
-  'gpuservice.instance.memory.remaining': '内存(最大{count}GB)',
+  'gpuservice.template.mountPath.tips':
+    '在使用该模板创建实例时，存储卷默认挂载的路径，可用于持久化实例运行过程中需要保留的数据。',
+  'gpuservice.template.containerDisk': '容器磁盘（GB）',
+  'gpuservice.template.containerDisk.tips': '容器系统盘大小。',
+  'gpuservice.template.memory': '内存（GB）',
+  'gpuservice.instance.containerDisk.remaining': '容器磁盘（最大 {count} GB）',
+  'gpuservice.instance.memory.remaining': '内存（最大 {count} GB）',
   'gpuservice.template.displayName': '显示名称',
   'gpuservice.template.displayName.max': '显示名称不能超过 63 个字符',
   'gpuservice.template.ports': '端口',
@@ -92,10 +95,13 @@ export default {
   'gpuservice.instance.templates': '实例模板',
   'gpuservice.instance.section.storage': '存储卷',
   'gpuservice.instance.type.required': '请选择实例类型',
+  'gpuservice.instance.type.noAvailable': '无可用的实例类型',
   'gpuservice.instance.gpuCount': 'GPU 数量',
   'gpuservice.instance.gpuCount.required': '请输入 GPU 数量',
   'gpuservice.instance.gpuCount.max': '最多选择 {count} 张卡',
   'gpuservice.instance.gpuCount.min': '至少选择 {count} 张卡',
+  'gpuservice.instance.cpuCount.max': '最多选择 {count} 核',
+  'gpuservice.instance.cpuCount.min': '至少选择 {count} 核',
   'gpuservice.instance.gpuCount.noAvailable':
     '没有可用的 GPU 资源，请选择其他实例类型。',
   'gpuservice.instance.gpuCount.zero': '仅使用 CPU，用于环境准备。',
@@ -103,7 +109,13 @@ export default {
   'gpuservice.instance.sliced': '切分',
   'gpuservice.instance.memory': '显存',
   'gpuservice.instance.ram': '内存',
+  'gpuservice.instance.os': '系统',
+  'gpuservice.instance.arch': '架构',
   'gpuservice.instance.disk': '磁盘',
+  'gpuservice.table.count': '数量',
+  'gpuservice.instance.disk.system': '系统盘',
+  'gpuservice.instance.disk.ephemeral': '临时存储',
+  'gpuservice.instance.disk.persistent': '持久存储',
   'gpuservice.instance.search.type.placeholder': '搜索名称',
   'gpuservice.instance.search.template.placeholder':
     '搜索模板名称、镜像或挂载路径',
@@ -137,13 +149,18 @@ export default {
   'gpuservice.storage.persistentVolume': '持久',
   'gpuservice.storage.temporary.tips': '实例停止后，数据将被清除。',
   'gpuservice.storage.persistentVolume.tips':
-    '数据在实例重启后仍会保留，仅在实例被终止时删除。无法被其它实例共享。',
-  'gpuservice.storage.persistentVolume.required': '请选择持久卷',
+    '数据在实例重启后仍会保留。持久卷不会随实例终止而删除，并可被多个实例共享。',
+  'gpuservice.storage.persistentVolume.required': '请选择存储',
   'gpuservice.storage.persistentVolume.capacity': '容量（GB）',
   'gpuservice.storage.persistentVolume.capacity.required': '请输入容量',
   'gpuservice.storage.persistentVolume.releaseWithInstance': '随实例释放',
   'gpuservice.storage.tempCapacity': '容量（GB）',
   'gpuservice.storage.tempCapacity.required': '请输入临时存储容量',
   'gpuservice.form.rule.name':
-    '由小写字母、数字和 "-" 组成，以字母或数字开头和结尾，不能包含连续的 "-"，最多 63 个字符。'
+    '由小写字母、数字和 "-" 组成，以字母或数字开头和结尾，不能包含连续的 "-"，最多 63 个字符。',
+  'gpuservice.form.storage.select': '选择存储',
+  'gpuservice.creator': '创建者',
+  'gpuservice.owner.global': '全局',
+  'gpuservice.template.group.yours': '我的模板',
+  'gpuservice.template.group.global': '全局模板'
 };

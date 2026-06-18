@@ -13,7 +13,11 @@ export default {
   'gpuservice.template.command.placeholder':
     '引数はスペースで区切り、スペースを含む引数は引用符で囲んでください。例：/bin/bash -c "echo hello world"',
   'gpuservice.template.mountPath': 'マウントパス',
+  'gpuservice.template.mountPath.tips':
+    'このテンプレートからインスタンスを作成する際に、ストレージボリュームがデフォルトでマウントされるパスです。インスタンスの実行中に保持する必要があるデータの永続化に使用できます。',
   'gpuservice.template.containerDisk': 'コンテナディスク (GB)',
+  'gpuservice.template.containerDisk.tips':
+    'コンテナシステムディスクのサイズです。',
   'gpuservice.template.memory': 'メモリ (GB)',
   'gpuservice.instance.containerDisk.remaining':
     'コンテナディスク (最大 {count} GB)',
@@ -96,12 +100,18 @@ export default {
   'gpuservice.instance.templates': 'インスタンステンプレート',
   'gpuservice.instance.section.storage': 'ストレージボリューム',
   'gpuservice.instance.type.required': 'インスタンスタイプを選択してください',
+  'gpuservice.instance.type.noAvailable':
+    '利用可能なインスタンスタイプがありません',
   'gpuservice.instance.gpuCount': 'GPU 数',
   'gpuservice.instance.gpuCount.required': 'GPU 数を入力してください',
   'gpuservice.instance.gpuCount.max':
     '最大 {count} 枚の GPU カードを選択してください',
   'gpuservice.instance.gpuCount.min':
     '少なくとも {count} 枚の GPU カードを選択してください',
+  'gpuservice.instance.cpuCount.max':
+    '最大 {count} 個の CPU コアを選択してください',
+  'gpuservice.instance.cpuCount.min':
+    '少なくとも {count} 個の CPU コアを選択してください',
   'gpuservice.instance.gpuCount.noAvailable':
     '利用可能な GPU リソースがありません。別のインスタンスタイプを選択してください。',
   'gpuservice.instance.gpuCount.zero': 'CPU のみを使用し、環境準備用です。',
@@ -109,7 +119,13 @@ export default {
   'gpuservice.instance.sliced': '分割',
   'gpuservice.instance.memory': 'VRAM',
   'gpuservice.instance.ram': 'RAM',
+  'gpuservice.instance.os': 'OS',
+  'gpuservice.instance.arch': 'アーキテクチャ',
   'gpuservice.instance.disk': 'ディスク',
+  'gpuservice.table.count': '数量',
+  'gpuservice.instance.disk.system': 'システムディスク',
+  'gpuservice.instance.disk.ephemeral': '一時ストレージ',
+  'gpuservice.instance.disk.persistent': '永続ストレージ',
   'gpuservice.instance.search.type.placeholder': '名前で検索',
   'gpuservice.instance.search.template.placeholder':
     'テンプレート名、イメージまたはマウントパスで検索',
@@ -143,7 +159,7 @@ export default {
   'gpuservice.storage.temporary': '一時',
   'gpuservice.storage.persistentVolume': '永続',
   'gpuservice.storage.persistentVolume.required':
-    '永続ボリュームを選択してください',
+    'ストレージを選択してください',
   'gpuservice.storage.persistentVolume.capacity': '容量 (GB)',
   'gpuservice.storage.persistentVolume.capacity.required':
     '容量を入力してください',
@@ -157,5 +173,10 @@ export default {
   'gpuservice.storage.temporary.tips':
     'Data is cleared when the instance stops.',
   'gpuservice.storage.persistentVolume.tips':
-    'Data persists across restarts and is deleted only when the instance is terminated. Cannot be shared with other instances.'
+    'Data persists across instance restarts. Persistent volumes remain intact after instance termination and can be shared by multiple instances.',
+  'gpuservice.form.storage.select': 'ストレージを選択',
+  'gpuservice.creator': '作成者',
+  'gpuservice.owner.global': 'グローバル',
+  'gpuservice.template.group.yours': '自分のテンプレート',
+  'gpuservice.template.group.global': 'グローバルテンプレート'
 };

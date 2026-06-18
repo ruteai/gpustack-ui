@@ -171,8 +171,6 @@ body {
   }
 
   .ant-table .ant-table-container table {
-    // border-spacing: 0 20px;
-
     .ant-table-thead th.ant-table-column-sort {
       background-color: transparent;
 
@@ -241,8 +239,8 @@ body {
     height: 100%;
 
     .ant-pro-sider-footer {
-      padding-block: 2px 0;
-      padding-left: 6px;
+      padding-block: 4px 0;
+      padding-left: 8px;
     }
 
     .ant-pro-sider-actions-list-item {
@@ -259,46 +257,26 @@ body {
       border-block-end: none;
     }
 
-    .ant-pro-sider-logo-collapsed {
-      padding-left: 12px;
-      cursor: e-resize;
-
-      .collapse-wrap {
-        display: none;
-        position: absolute;
-        top: 12px;
-
-        &::after {
-          content: '';
-          position: absolute;
-          height: 48px;
-          width: 64px;
-          top: -16px;
-          left: -16px;
-        }
-      }
-
-      &:hover {
-        .collapse-wrap {
-          display: block;
+    .ant-pro-sider-logo {
+      .collapse-btn {
+        color: var(--ant-color-text-tertiary);
+        :hover {
+          color: var(--ant-color-text);
         }
       }
     }
 
-    .ant-pro-sider .ant-layout-sider-children {
-      // border-right: 1px solid var(--ant-color-split);
+    .ant-pro-sider-logo-collapsed {
+      padding-left: 6px;
     }
   }
 
-  .ant-table-content table {
-    .ant-table-tbody {
-      .ant-table-row {
-        border-radius: var(--table-td-radius);
+  .ant-table .ant-table-tbody {
+    .ant-table-row {
+      border-radius: var(--table-td-radius);
 
-        > td {
-          background-color: unset;
-          border-bottom: 1px solid var(--ant-color-split);
-        }
+      > td {
+        border-bottom: 1px solid var(--ant-color-split);
       }
     }
   }
@@ -347,7 +325,6 @@ body {
   .ant-pro-layout-container {
     overflow-x: auto;
     min-height: 100vh;
-    // background-color: var(--ant-color-bg-container);
   }
 
   .ant-pro-sider {
@@ -812,6 +789,8 @@ body {
 }
 
 .ant-pro-sider-logo + div {
+  display: flex;
+  overflow: hidden;
   &::-webkit-scrollbar {
     width: 0;
   }

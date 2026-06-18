@@ -21,11 +21,7 @@ import {
 import { useAccessMarkedRoutes } from '@@/plugin-access';
 import { useModel } from '@@/plugin-model';
 import { ProLayout } from '@ant-design/pro-components';
-import {
-  CoreUIProvider,
-  IconFont,
-  useOverlayScroller
-} from '@gpustack/core-ui';
+import { CoreUIProvider, IconFont } from '@gpustack/core-ui';
 import {
   Access,
   Outlet,
@@ -72,9 +68,9 @@ const NO_CONTAINER_PAGES = [
 
 const CHECK_RESOURCE_PATH = [
   '/resources/workers',
-  '/cluster-management/clusters/list',
-  '/cluster-management/credentials',
-  '/cluster-management/clusters/create'
+  '/resources/clusters/list',
+  '/resources/credentials',
+  '/resources/clusters/create'
 ];
 
 type NewRoute = IRoute & {
@@ -135,9 +131,6 @@ const mapRoutes = (routes: IRoute[], role: string) => {
 };
 
 export default (props: any) => {
-  const { initialize: initialize } = useOverlayScroller({
-    defer: false
-  });
   const [, contextHolder] = Modal.useModal();
   const { themeData, setUserSettings, userSettings } = useUserSettings();
   const [userInfo] = useAtom(userAtom);
@@ -241,30 +234,7 @@ export default (props: any) => {
   }, [userSettings.collapsed]);
 
   const renderMenuHeader = (logo: React.ReactNode, title: React.ReactNode) => {
-    return (
-      <>
-        {logo}
-        <div className="collapse-wrap" onClick={handleToggleCollapse}>
-          <Button
-            style={{
-              marginRight: collapsed ? 0 : -14,
-              border: 'none',
-              cursor: 'w-resize'
-            }}
-            size="small"
-            type={collapsed ? 'default' : 'text'}
-          >
-            <IconFont
-              type={collapsed ? 'icon-expand-left' : 'icon-expand-right'}
-              className="font-size-18 text-secondary"
-              style={{
-                display: 'block'
-              }}
-            />
-          </Button>
-        </div>
-      </>
-    );
+    return <>{logo}</>;
   };
 
   const menuContentRender = (menuProps: any, defaultDom: React.ReactNode) => {
@@ -408,9 +378,23 @@ export default (props: any) => {
           openKeys={false}
           disableMobile={true}
           siderWidth={220}
+          menuFooterRender={() => (
+            <Button
+              style={{
+                border: 'none'
+              }}
+              size="small"
+              type={'text'}
+              onClick={handleToggleCollapse}
+            >
+              <IconFont
+                type={collapsed ? 'icon-expand-left' : 'icon-expand-right'}
+                className="font-size-18"
+              />
+            </Button>
+          )}
           onCollapse={onCollapse}
           onMenuHeaderClick={onMenuHeaderClick}
-          menuHeaderRender={renderMenuHeader}
           collapsed={userSettings.collapsed}
           onPageChange={onPageChange}
           formatMessage={formatMessage}

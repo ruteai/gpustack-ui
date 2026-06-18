@@ -46,6 +46,7 @@ export default {
   'common.button.enabled': '有効',
   'common.button.disabled': '無効',
   'common.button.upgrade': 'アップグレード',
+  'common.enterprise.feature': 'Available in GPUStack Enterprise',
   'common.input.holder': '入力してください',
   'common.validate.value': '{name} の値は必須です',
   'common.button.edit': '編集',
@@ -66,6 +67,7 @@ export default {
   'common.search.name.placeholder': '名前でフィルタ',
   'common.search.id.placeholder': 'IDでフィルタ',
   'common.filter.byId': 'IDでフィルタ',
+  'common.filter.byCreator': '作成者でフィルタ',
   'common.table.type': 'タイプ',
   'common.table.default': 'デフォルト値',
   'common.copy.success': 'コピー成功！',
@@ -168,6 +170,7 @@ export default {
   'common.time.hour': '時間',
   'common.time.minute': '分',
   'common.issue.report': '問題を報告',
+  'common.github.star.tooltip': 'GitHub でスターをつける',
   'common.social.discord': 'Discordに参加',
   'common.table.mark': 'コメント',
   'common.table.rollback.mark': 'ロールバックコメント',
@@ -258,6 +261,10 @@ export default {
   'common.login.auth': 'Authenticating...',
   'common.login.auth.failed': 'Authentication failed',
   'common.login.password': 'Log in with Password',
+  'common.login.username.holder': 'Please enter username',
+  'common.login.password.holder': 'Please enter password',
+  'common.login.newpassword.holder': 'Please enter new password',
+  'common.login.confirm.holder': 'Please enter password again',
   'common.external.login': 'Log in with {type}',
   'common.sso.noConfig':
     'Single sign-on is not enabled on this system. Please contact your administrator.',
@@ -286,6 +293,7 @@ export default {
   'common.image.limit.height': 'Image height must be {height}.',
   'common.remaining': '残り {count}',
   'common.max': '最大 {count}',
+  'common.max.count': '{label} 数',
   'common.validate.group': 'Please complete the {group} configuration',
   'common.preferences': 'Preferences'
 };

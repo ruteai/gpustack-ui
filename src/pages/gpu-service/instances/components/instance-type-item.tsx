@@ -1,13 +1,13 @@
 import { AutoTooltip, IconFont, ThemeTag } from '@gpustack/core-ui';
 import { useIntl } from '@umijs/max';
-import { Flex } from 'antd';
+import { Flex, Tag } from 'antd';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { manufactureColorMap } from '../../templates/config';
-import { convertKiToGi } from '../config';
+import { formatMemoryDisplay } from '../config';
 import { InstanceTypeItem as InstanceTypeItemModel } from '../config/types';
 
-const toDisplayUnit = (value?: string | null) =>
-  value ? value.replace(/Gi$/, 'GB').replace(/Ti$/, 'TB') : value;
+const Vendors = ['intel'] as const;
 
 const Title = styled.div`
   display: flex;
@@ -19,24 +19,16 @@ const Title = styled.div`
   font-weight: 500;
 `;
 
-const Meta = styled.div`
+const Meta = styled.div<{ $columns?: number }>`
   display: grid;
-  grid-template-columns: repeat(7, auto);
+  grid-template-columns: repeat(${(props) => props.$columns ?? 7}, auto);
+  grid-auto-rows: minmax(15px, auto);
   justify-content: start;
   column-gap: 4px;
   row-gap: 8px;
   align-items: center;
-  color: var(--ant-color-text-secondary);
+  color: var(--ant-color-text-tertiary);
   font-size: 13px;
-
-  .meta-row {
-    display: grid;
-    grid-template-columns: subgrid;
-    grid-column: 1 / -1;
-    align-items: center;
-    min-height: 15px;
-    color: var(--ant-color-text-tertiary);
-  }
 
   .dot {
     width: 3px;
@@ -47,6 +39,13 @@ const Meta = styled.div`
     justify-self: center;
   }
 
+  .meta-label {
+    font-size: 12px;
+  }
+  .meta-value {
+    font-size: 12px;
+  }
+
   .meta-icon {
     font-size: 14px;
     color: var(--ant-color-text-quaternary);
@@ -55,13 +54,16 @@ const Meta = styled.div`
 
 interface InstanceTypeItemProps {
   item: InstanceTypeItemModel;
-  showStatus?: boolean;
+}
+
+interface MetadataSectionProps {
+  spec: InstanceTypeItemModel['spec'];
 }
 
 const MetaItem: React.FC<{
   icon: string;
   label?: string;
-  value?: string | null | number;
+  value?: React.ReactNode;
   showDot?: boolean;
   show?: boolean;
 }> = ({ icon, label, value, showDot = true, show = true }) => {
@@ -76,108 +78,203 @@ const MetaItem: React.FC<{
   );
 };
 
-const InstanceTypeItem: React.FC<InstanceTypeItemProps> = ({ item }) => {
-  const intl = useIntl();
-  const specData = item.spec || {};
+const CPUManufacturerTag: React.FC<{ manufacturer?: string }> = ({
+  manufacturer
+}) => {
+  return (
+    <Tag
+      color="blue"
+      disabled={false}
+      style={{
+        fontWeight: 400,
+        margin: 0,
+        marginLeft: 0,
+        display: 'flex',
+        alignItems: 'center',
+        lineHeight: 1.5
+      }}
+      variant="outlined"
+    >
+      {manufacturer}
+    </Tag>
+  );
+};
 
-  // false: CPU; true: GPU
-  const acceleratable = specData.acceleratable;
+function getInstanceDerived(item: InstanceTypeItemModel) {
+  const spec = item.spec || {};
+  const acceleratable = spec.acceleratable;
 
-  const manufacturer = acceleratable ? specData.manufacturer || '' : 'cpu';
-  const manufacturerColor = manufactureColorMap[manufacturer] ?? 'purple';
+  const cpuManufacturer = acceleratable
+    ? spec.cpu?.manufacturer
+    : spec.manufacturer;
 
-  // resource once-max-request status
-  const onceMaxRequestData = item.status?.onceMaxRequest || {};
-
-  // RAM resource
-  const ramUnit = acceleratable
-    ? specData.unitResourcesParsed?.ram?.value
-    : onceMaxRequestData.ram;
-
-  // CPU resource
-  const cpuUnitCores = acceleratable
-    ? specData.unitResourcesParsed?.cpu?.cores
-    : onceMaxRequestData.cpu;
-
-  const renderName = () => {
-    const displayName = specData.acceleratable
-      ? specData.product || item.name
-      : 'CPU';
-    return displayName;
+  return {
+    acceleratable,
+    isGPU: acceleratable,
+    manufacturer: acceleratable ? spec.manufacturer || '' : 'cpu', // GPU manufacturer or 'cpu' for non-acceleratable types
+    displayName: acceleratable ? spec.product || item.name : 'CPU Only',
+    ramUnit: spec.unitResourcesParsed?.ram?.value,
+    os: _.capitalize(spec.os) || '',
+    arch: spec.arch,
+    cpuManufacturer: Vendors.includes(cpuManufacturer as any)
+      ? _.capitalize(cpuManufacturer)
+      : _.toUpper(cpuManufacturer),
+    cpuUnitCores: spec.unitResourcesParsed?.cpu?.cores
   };
+}
+
+export const InstanceMetadataSection: React.FC<MetadataSectionProps> = ({
+  spec
+}) => {
+  const intl = useIntl();
+
+  const { ramUnit, cpuUnitCores, isGPU, os, arch } = getInstanceDerived({
+    spec
+  } as InstanceTypeItemModel);
 
   return (
-    <>
-      <Title>
-        <Flex gap={8} align="center">
-          <AutoTooltip ghost minWidth={20} maxWidth={200}>
-            {renderName() || '-'}
-          </AutoTooltip>
-          {acceleratable && manufacturer && (
-            <span
-              style={{
-                color: 'var(--ant-color-text-tertiary)',
-                fontWeight: 400
-              }}
-            >
-              <ThemeTag color={manufacturerColor} disabled={false}>
-                {manufacturer?.toUpperCase()}
-              </ThemeTag>
-            </span>
-          )}
-        </Flex>
-      </Title>
-      <Meta>
-        <span className="meta-row">
-          {acceleratable && (
-            <>
-              <MetaItem
-                showDot={false}
-                icon="icon-gpu1"
-                label={intl.formatMessage({ id: 'gpuservice.instance.memory' })}
-                value={
-                  toDisplayUnit(convertKiToGi(specData?.memory ?? undefined)) ??
-                  '-'
-                }
-              />
-              <MetaItem
-                show={!!specData?.sliced}
-                icon="icon-sliced"
-                label={intl.formatMessage({
-                  id: 'gpuservice.instance.sliced'
-                })}
-                value={specData?.sliced}
-              />
-              <MetaItem
-                icon="icon-database"
-                label={intl.formatMessage(
-                  {
-                    id: 'common.max'
-                  },
-                  { count: '' }
-                )}
-                value={`${item.maxAccelerator || 0}`}
-              />
-            </>
-          )}
-        </span>
-        <span className="meta-row">
+    <Meta $columns={isGPU ? 11 : 7}>
+      {isGPU && (
+        <>
+          {/* row 1: Memory | Max | RAM */}
+          <MetaItem
+            show={isGPU}
+            showDot={false}
+            icon="icon-gpu1"
+            label={intl.formatMessage({ id: 'gpuservice.instance.memory' })}
+            value={formatMemoryDisplay(spec?.memory ?? undefined) ?? '-'}
+          />
+          <MetaItem
+            showDot={true}
+            icon="icon-ram-02"
+            label={intl.formatMessage({ id: 'gpuservice.instance.ram' })}
+            value={ramUnit ? `${ramUnit} GB` : '-'}
+          />
+          <MetaItem
+            icon="icon-database"
+            label={intl.formatMessage(
+              {
+                id: 'common.max'
+              },
+              { count: '' }
+            )}
+            value={`${spec.maxComputeUnitCount || 0}`}
+          />
+          {/* row 2: OS | Arch | CPU */}
+          <MetaItem
+            showDot={false}
+            icon="icon-server02"
+            label={intl.formatMessage({ id: 'gpuservice.instance.os' })}
+            value={os || '-'}
+          />
+          <MetaItem
+            icon="icon-cube"
+            label={intl.formatMessage({ id: 'gpuservice.instance.arch' })}
+            value={_.toUpper(arch) || '-'}
+          />
+          <MetaItem
+            show={isGPU}
+            showDot={true}
+            icon="icon-cpu"
+            label="CPU"
+            value={
+              <Flex gap={4} align="center">
+                <span>{cpuUnitCores || '-'}</span>
+              </Flex>
+            }
+          />
+        </>
+      )}
+
+      {!isGPU && (
+        <>
+          {/* row 1: RAM | Max */}
           <MetaItem
             showDot={false}
             icon="icon-ram-02"
             label={intl.formatMessage({ id: 'gpuservice.instance.ram' })}
-            value={ramUnit ? `${ramUnit}GB` : '-'}
+            value={ramUnit ? `${ramUnit} GB` : '-'}
           />
           <MetaItem
-            show={!!cpuUnitCores}
-            showDot={true}
-            icon="icon-cpu"
-            label="CPU"
-            value={cpuUnitCores || '-'}
+            icon="icon-database"
+            label={intl.formatMessage(
+              {
+                id: 'common.max'
+              },
+              { count: '' }
+            )}
+            value={`${spec.maxComputeUnitCount || 0}`}
           />
-        </span>
-      </Meta>
-    </>
+          {/* row 2: OS | Arch */}
+          <MetaItem
+            showDot={false}
+            icon="icon-server02"
+            label={intl.formatMessage({ id: 'gpuservice.instance.os' })}
+            value={os || '-'}
+          />
+          <MetaItem
+            icon="icon-cube"
+            label={intl.formatMessage({ id: 'gpuservice.instance.arch' })}
+            value={_.toUpper(arch) || '-'}
+          />
+        </>
+      )}
+    </Meta>
+  );
+};
+
+const InstanceTypeItem: React.FC<InstanceTypeItemProps> = ({ item }) => {
+  const specData = item.spec || {};
+
+  const { acceleratable, manufacturer, displayName, cpuManufacturer } =
+    getInstanceDerived(item);
+
+  const manufacturerColor = manufactureColorMap[manufacturer] ?? 'purple';
+  const showManufacturerTag = acceleratable && !!manufacturer;
+  const showCpuManufacturerTag = !acceleratable && !!cpuManufacturer;
+
+  return (
+    <Flex
+      orientation="vertical"
+      justify="space-between"
+      style={{ height: '100%' }}
+    >
+      <Title>
+        <Flex gap={8} align="center" style={{ width: '100%', minWidth: 0 }}>
+          <div
+            className="instance-type-name"
+            style={{
+              flex: 1,
+              minWidth: 0
+            }}
+          >
+            <AutoTooltip ghost minWidth={20} maxWidth={'100%'}>
+              {displayName || '-'}
+            </AutoTooltip>
+          </div>
+
+          {showManufacturerTag && (
+            <ThemeTag
+              color={manufacturerColor}
+              disabled={false}
+              style={{ fontWeight: 400 }}
+            >
+              {manufacturer?.toUpperCase()}
+            </ThemeTag>
+          )}
+          {showCpuManufacturerTag && (
+            <ThemeTag
+              color={manufacturerColor}
+              disabled={false}
+              style={{ fontWeight: 400 }}
+            >
+              {cpuManufacturer}
+            </ThemeTag>
+          )}
+        </Flex>
+      </Title>
+      <InstanceMetadataSection spec={specData}></InstanceMetadataSection>
+    </Flex>
   );
 };
 

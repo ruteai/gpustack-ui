@@ -13,6 +13,8 @@ import theadLogoZH from '@/assets/logo/t-head-zh.png';
 import tensorflowkLogo from '@/assets/logo/tensorflow.svg';
 import ubuntuLogo from '@/assets/logo/ubuntu_logo.png';
 import vllmLogo from '@/assets/logo/vllm.png';
+import PluginExtraFields from '@/components/plugin-extra-fields';
+import OwnerTag from '@/pages/gpu-service/components/owner-tag';
 import {
   GPUsConfigs,
   manfacturerValueMap
@@ -26,6 +28,7 @@ import {
 } from '@gpustack/core-ui';
 import { useIntl } from '@umijs/max';
 import { Button, Tag } from 'antd';
+import { useMemo } from 'react';
 import styled from 'styled-components';
 import { manufactureColorMap, templateActions } from '../config';
 import { ListItem } from '../config/types';
@@ -33,22 +36,11 @@ import { ListItem } from '../config/types';
 const imageLogoMap = {
   vllm: vllmLogo,
   sglang: sgLangLogo,
-  cann: ascendLogo,
   jupyter: jupyterLogo,
   pytorch: pytorchBlackLogo,
   tensorflow: tensorflowkLogo,
   ubuntu: ubuntuLogo
 } as const;
-
-const manufacturerLabelMap: Record<string, string> = Object.values(
-  GPUsConfigs
-).reduce(
-  (acc, item) => {
-    if (item.gpuVendor) acc[item.gpuVendor] = item.label;
-    return acc;
-  },
-  { cpu: 'CPU' } as Record<string, string>
-);
 
 const matchImageLogo = (
   image: string | undefined
@@ -143,6 +135,19 @@ interface TemplateCardProps {
 
 const TemplateCardItem: React.FC<TemplateCardProps> = ({ data, onSelect }) => {
   const intl = useIntl();
+
+  const manufacturerLabelMap: Record<string, string> = useMemo(() => {
+    return Object.values(GPUsConfigs).reduce(
+      (acc, item) => {
+        if (item.gpuVendor)
+          acc[item.gpuVendor] = item.locales.locale
+            ? intl.formatMessage({ id: item.locales.label })
+            : item.locales.label;
+        return acc;
+      },
+      { cpu: 'CPU' } as Record<string, string>
+    );
+  }, [intl]);
 
   const handleOnSelect = (item: any) => {
     onSelect?.({ action: item.key, data });
@@ -257,6 +262,11 @@ const TemplateCardItem: React.FC<TemplateCardProps> = ({ data, onSelect }) => {
             {data.displayName || data.name || '-'}
           </AutoTooltip>
           {renderManufacturerTag()}
+          <PluginExtraFields
+            name="OwnerScopeTag"
+            context={{ ownerPrincipalId: data.owner_principal_id }}
+          />
+          <OwnerTag ownerId={data.owner_principal_id} />
         </CardName>
         <InfoItem>
           <span>

@@ -4,7 +4,6 @@ import {
   GPUsConfigs
 } from '@/pages/resources/config/gpu-driver';
 import { useIntl } from '@umijs/max';
-import { Tag } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import { ProviderValueMap } from '../../config';
 import SupportedGPUs from '../support-gpus';
@@ -36,9 +35,7 @@ const SelectVendor: React.FC<AddWorkerStepProps> = ({ disabled }) => {
   // for the Kubernetes provider; other providers stay single-select.
   const multiCapable = provider === ProviderValueMap.Kubernetes;
 
-  const [selectedKeys, setSelectedKeys] = useState<string[]>([
-    GPUDriverMap.NVIDIA
-  ]);
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
   // No vendor is gated anymore — every card stays selectable.
   const availableKeys = undefined;
@@ -48,18 +45,6 @@ const SelectVendor: React.FC<AddWorkerStepProps> = ({ disabled }) => {
   const itemMetaRef = useRef<Record<string, { label: string; link: string }>>(
     {}
   );
-
-  // Push current selection into the shared summary so consumers
-  // (K8sRunCommand, CheckEnvironment, VendorNotes) can read it.
-  useEffect(() => {
-    const primary = selectedKeys[0] || '';
-    updateField('currentGPU', primary);
-    updateField('selectedGPUs', selectedKeys);
-    updateField(
-      'workerCommand',
-      primary ? buildWorkerCommand(primary, itemMetaRef.current[primary]) : null
-    );
-  }, [selectedKeys]);
 
   useEffect(() => {
     const unregister1 = registerField('currentGPU');
@@ -72,6 +57,29 @@ const SelectVendor: React.FC<AddWorkerStepProps> = ({ disabled }) => {
     };
   }, []);
 
+  const buildSelectedKeys = (key: string) => {
+    const prev = [...selectedKeys];
+    const has = prev.includes(key);
+    if (has) {
+      // Clicking a selected card always toggles it off.
+      return prev.filter((v) => v !== key);
+    }
+    // K8s clusters support multiple GPU runtimes, so accumulate picks.
+    // Other providers stay single-select and replace the current pick.
+    if (multiCapable) return [...prev, key];
+    return [key];
+  };
+
+  const updateFieldsOnSelect = (keys: string[]) => {
+    const primary = keys[0] || '';
+    updateField('currentGPU', primary);
+    updateField('selectedGPUs', keys);
+    updateField(
+      'workerCommand',
+      primary ? buildWorkerCommand(primary, itemMetaRef.current[primary]) : null
+    );
+  };
+
   const handleSelect = (key: string, item: any) => {
     if (item) {
       itemMetaRef.current[key] = {
@@ -79,18 +87,25 @@ const SelectVendor: React.FC<AddWorkerStepProps> = ({ disabled }) => {
         link: item.link
       };
     }
-    setSelectedKeys((prev) => {
-      const has = prev.includes(key);
-      if (has) {
-        // Clicking a selected card always toggles it off.
-        return prev.filter((v) => v !== key);
-      }
-      // K8s clusters support multiple GPU runtimes, so accumulate picks.
-      // Other providers stay single-select and replace the current pick.
-      if (multiCapable) return [...prev, key];
-      return [key];
-    });
+    const keys = buildSelectedKeys(key);
+    updateFieldsOnSelect(keys);
+    setSelectedKeys(keys);
   };
+
+  useEffect(() => {
+    // Default to NVIDIA for every provider, including K8s. Users can still
+    // deselect it (e.g. for CPU-only workers) or add more vendors on K8s.
+    handleSelect(GPUDriverMap.NVIDIA, {
+      label: 'NVIDIA',
+      hiddenTitle: true,
+      value: GPUDriverMap.NVIDIA,
+      description: '',
+      key: GPUDriverMap.NVIDIA,
+      locale: false,
+      notes: AddWorkerDockerNotes[GPUDriverMap.NVIDIA],
+      link: 'https://docs.gpustack.ai/latest/installation/requirements/#nvidia-gpu'
+    });
+  }, []);
 
   return (
     <StepCollapse
@@ -101,18 +116,18 @@ const SelectVendor: React.FC<AddWorkerStepProps> = ({ disabled }) => {
           {stepIndex}.{' '}
           {intl.formatMessage({ id: 'clusters.addworker.selectGPU' })}
           {multiCapable && (
-            <Tag
-              color="blue"
+            <span
               style={{
                 marginLeft: 8,
                 fontWeight: 400,
-                borderRadius: 4
+                fontSize: 13,
+                color: 'var(--ant-color-text-secondary)'
               }}
             >
               {intl.formatMessage({
-                id: 'clusters.addworker.selectGPU.multiTag'
+                id: 'clusters.addworker.selectGPU.subtitle'
               })}
-            </Tag>
+            </span>
           )}
         </Title>
       }

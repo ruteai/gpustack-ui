@@ -1,6 +1,7 @@
 import { systemConfigAtom } from '@/atoms/system';
 import { GPUStackVersionAtom } from '@/atoms/user';
 import { tableSorter } from '@/config/settings';
+import { usePluginListColumns } from '@/plugins/list-extra-columns';
 import { convertFileSize } from '@/utils';
 import {
   DeleteOutlined,
@@ -233,12 +234,14 @@ const useWorkerColumns = ({
   loadend,
   firstLoad,
   sortOrder,
+  source,
   handleSelect
 }: {
   clusterData: {
     list: Global.BaseOption<number>[];
     data: Record<number, string>;
   };
+  source?: string;
   loadend: boolean;
   firstLoad: boolean;
   sortOrder: string[];
@@ -247,8 +250,7 @@ const useWorkerColumns = ({
   const intl = useIntl();
   const systemConfig = useAtomValue(systemConfigAtom);
   const [version] = useAtom(GPUStackVersionAtom);
-
-  console.log('version in useWorkerColumns', version);
+  const pluginCols = usePluginListColumns('workers');
 
   const renderIP = (text: string, record: ListItem) => {
     if (record.advertise_address === record.ip) {
@@ -262,11 +264,15 @@ const useWorkerColumns = ({
     ) {
       return (
         <span className={workerCss.ipWrapper}>
-          <span className="item">
+          <span className={workerCss.item}>
             <span className="text-primary">{record.ip}</span>
-            <span className="label">{`(${intl.formatMessage({ id: 'clusters.table.ip.internal' })})`}</span>
+            <span
+              className={workerCss.label}
+            >{`(${intl.formatMessage({ id: 'clusters.table.ip.internal' })})`}</span>
             <span className="text-primary">{record.advertise_address}</span>
-            <span className="label">{`(${intl.formatMessage({ id: 'clusters.table.ip.external' })})`}</span>
+            <span
+              className={workerCss.label}
+            >{`(${intl.formatMessage({ id: 'clusters.table.ip.external' })})`}</span>
           </span>
         </span>
       );
@@ -369,17 +375,26 @@ const useWorkerColumns = ({
           </div>
         }
       >
-        {shouldUpgrade ? (
-          <IconFont
-            type="icon-upgrade"
-            style={{ color: 'var(--ant-color-warning)' }}
-          ></IconFont>
-        ) : (
-          <InfoCircleOutlined style={{ color: 'var(--ant-blue-5)' }} />
-        )}
+        <span>
+          {shouldUpgrade ? (
+            <IconFont
+              type="icon-upgrade"
+              style={{ color: 'var(--ant-color-warning)' }}
+            ></IconFont>
+          ) : (
+            <InfoCircleOutlined style={{ color: 'var(--ant-blue-5)' }} />
+          )}
+        </span>
       </Tooltip>
     );
   };
+
+  const pluginRendered = pluginCols.map((c) => ({
+    title: intl.formatMessage({ id: c.titleId }),
+    key: c.key,
+    ellipsis: { showTitle: false },
+    render: (_text: any, record: ListItem) => c.render(record)
+  }));
 
   return useMemo<ColumnsType<ListItem>>(
     () => [
@@ -390,7 +405,7 @@ const useWorkerColumns = ({
         sorter: tableSorter(1),
         render: (text: string, record: ListItem) => (
           <div className={workerCss.name}>
-            <AutoTooltip ghost maxWidth={200}>
+            <AutoTooltip ghost maxWidth={200} title={text}>
               <span className="name-text">{text}</span>
             </AutoTooltip>
             {renderVersionInfo(record)}
@@ -403,6 +418,7 @@ const useWorkerColumns = ({
         width: 200,
         render: (_, record) => <LabelCell labels={record.labels} />
       },
+      ...pluginRendered,
       {
         title: intl.formatMessage({ id: 'clusters.title' }),
         dataIndex: 'cluster_id',
@@ -521,6 +537,7 @@ const useWorkerColumns = ({
       {
         title: intl.formatMessage({ id: 'common.table.operation' }),
         key: 'operation',
+        hidden: source === 'clusterDetail',
         render: (_, record) => (
           <DropdownButtons
             items={setActions(record)}
@@ -529,7 +546,16 @@ const useWorkerColumns = ({
         )
       }
     ],
-    [intl, sortOrder, clusterData, loadend, firstLoad, handleSelect]
+    [
+      intl,
+      sortOrder,
+      clusterData,
+      loadend,
+      source,
+      firstLoad,
+      handleSelect,
+      pluginRendered
+    ]
   );
 };
 

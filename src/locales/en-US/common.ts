@@ -46,6 +46,7 @@ export default {
   'common.button.enabled': 'Enabled',
   'common.button.disabled': 'Disabled',
   'common.button.upgrade': 'Upgrade',
+  'common.enterprise.feature': 'Available in GPUStack Enterprise',
   'common.input.holder': 'Please enter',
   'common.validate.value': '{name} value is required',
   'common.button.edit': 'Edit',
@@ -66,6 +67,7 @@ export default {
   'common.search.name.placeholder': 'filter by name',
   'common.search.id.placeholder': 'filter by ID',
   'common.filter.byId': 'filter by ID',
+  'common.filter.byCreator': 'Filter by creator',
   'common.table.type': 'Type',
   'common.table.default': 'Default Value',
   'common.copy.success': 'Copied success!',
@@ -167,6 +169,7 @@ export default {
   'common.time.hour': 'hour',
   'common.time.minute': 'minutes',
   'common.issue.report': 'Report an issue',
+  'common.github.star.tooltip': 'Star us on GitHub',
   'common.social.discord': 'Join Our Discord',
   'common.table.mark': 'Comment',
   'common.table.rollback.mark': 'Rollback Comment',
@@ -258,6 +261,10 @@ export default {
   'common.login.auth': 'Authenticating...',
   'common.login.auth.failed': 'Authentication failed',
   'common.login.password': 'Log in with Password',
+  'common.login.username.holder': 'Please enter username',
+  'common.login.password.holder': 'Please enter password',
+  'common.login.newpassword.holder': 'Please enter new password',
+  'common.login.confirm.holder': 'Please enter password again',
   'common.external.login': 'Log in with {type}',
   'common.sso.noConfig':
     'Single sign-on is not enabled on this system. Please contact your administrator.',
@@ -286,6 +293,7 @@ export default {
   'common.image.limit.height': 'Image height must be {height}.',
   'common.remaining': 'Remaining {count}',
   'common.max': 'Max {count}',
+  'common.max.count': '{label} Count',
   'common.validate.group': 'Please complete the {group} configuration',
   'common.preferences': 'Preferences'
 };

@@ -13,7 +13,11 @@ export default {
   'gpuservice.template.command.placeholder':
     'Separate arguments with spaces; wrap arguments containing spaces in quotes, e.g.: /bin/bash -c "echo hello world"',
   'gpuservice.template.mountPath': 'Mount Path',
+  'gpuservice.template.mountPath.tips':
+    'The default mount path for the storage volume when creating an instance from this template. Useful for persisting data that needs to be retained while the instance is running.',
   'gpuservice.template.containerDisk': 'Container Disk (GB)',
+  'gpuservice.template.containerDisk.tips':
+    'The size of the container system disk.',
   'gpuservice.template.memory': 'Memory (GB)',
   'gpuservice.instance.containerDisk.remaining':
     'Container Disk (Max {count} GB)',
@@ -97,12 +101,17 @@ export default {
   'gpuservice.instance.templates': 'Instance Templates',
   'gpuservice.instance.section.storage': 'Storage',
   'gpuservice.instance.type.required': 'Please select an instance type',
+  'gpuservice.instance.type.noAvailable': 'No instance type available',
   'gpuservice.instance.gpuCount': 'GPU Count',
   'gpuservice.instance.gpuCount.required': 'Please enter the GPU count',
   'gpuservice.instance.gpuCount.max':
     'Please select at most {count} GPU card(s)',
   'gpuservice.instance.gpuCount.min':
     'Please select at least {count} GPU card(s)',
+  'gpuservice.instance.cpuCount.max':
+    'Please select at most {count} CPU core(s)',
+  'gpuservice.instance.cpuCount.min':
+    'Please select at least {count} CPU core(s)',
   'gpuservice.instance.gpuCount.noAvailable':
     'No available GPU resources, please choose another instance type.',
   'gpuservice.instance.gpuCount.zero':
@@ -111,7 +120,13 @@ export default {
   'gpuservice.instance.sliced': 'Sliced',
   'gpuservice.instance.memory': 'VRAM',
   'gpuservice.instance.ram': 'RAM',
+  'gpuservice.instance.os': 'OS',
+  'gpuservice.instance.arch': 'Arch',
   'gpuservice.instance.disk': 'Disk',
+  'gpuservice.table.count': 'Count',
+  'gpuservice.instance.disk.system': 'System Disk',
+  'gpuservice.instance.disk.ephemeral': 'Ephemeral Storage',
+  'gpuservice.instance.disk.persistent': 'Persistent Storage',
   'gpuservice.instance.search.type.placeholder': 'Search by name',
   'gpuservice.instance.search.template.placeholder':
     'Search by template name, image or mount path',
@@ -147,9 +162,8 @@ export default {
   'gpuservice.storage.temporary.tips':
     'Data is cleared when the instance stops.',
   'gpuservice.storage.persistentVolume.tips':
-    'Data persists across restarts and is deleted only when the instance is terminated. Cannot be shared with other instances.',
-  'gpuservice.storage.persistentVolume.required':
-    'Please select a persistent volume',
+    'Data persists across instance restarts. Persistent volumes remain intact after instance termination and can be shared by multiple instances.',
+  'gpuservice.storage.persistentVolume.required': 'Please select a storage',
   'gpuservice.storage.persistentVolume.capacity': 'Capacity (GB)',
   'gpuservice.storage.persistentVolume.capacity.required':
     'Please enter capacity',
@@ -159,5 +173,10 @@ export default {
   'gpuservice.storage.tempCapacity.required':
     'Please enter the temporary storage capacity',
   'gpuservice.form.rule.name':
-    "Lowercase letters, numbers, and '-'. Start and end with a letter or number, no consecutive '-', max 63 characters."
+    "Lowercase letters, numbers, and '-'. Start and end with a letter or number, no consecutive '-', max 63 characters.",
+  'gpuservice.form.storage.select': 'Select Storage',
+  'gpuservice.creator': 'Creator',
+  'gpuservice.owner.global': 'Global',
+  'gpuservice.template.group.yours': 'Your Templates',
+  'gpuservice.template.group.global': 'Global Templates'
 };

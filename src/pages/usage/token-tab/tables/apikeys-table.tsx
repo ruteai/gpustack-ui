@@ -1,14 +1,12 @@
 import { TABLE_SORT_DIRECTIONS } from '@/config/settings';
 import PageBox from '@/pages/_components/page-box';
-import { IconFont, NoResult } from '@gpustack/core-ui';
 import { useIntl } from '@umijs/max';
 import { Table } from 'antd';
-import _ from 'lodash';
 import { useEffect, useRef, useState } from 'react';
-import { FilterOptionType } from '../config/types';
-import useAPIKeys from '../hooks/use-apikeys-columns';
-import useQueryBreakdownList from '../services/use-query-breakdown-list';
-import getBreakdownRowKey from '../utils/get-breakdown-row-key';
+import { FilterOptionType } from '../../config/types';
+import useAPIKeys from '../../hooks/use-apikeys-columns';
+import useQueryBreakdownList from '../../services/use-query-breakdown-list';
+import getBreakdownRowKey from '../../utils/get-breakdown-row-key';
 
 const APIKeys: React.FC<{
   apiKeys: FilterOptionType[];
@@ -38,6 +36,7 @@ const APIKeys: React.FC<{
       sorter.order === 'descend' ? `-${sorter.field}` : sorter.field;
     setQueryParams((prev) => ({
       ...prev,
+      page: 1,
       sort_by
     }));
   };
@@ -60,24 +59,6 @@ const APIKeys: React.FC<{
       }));
     }
   }, [pageResetKey]);
-
-  const renderEmpty = (type?: string) => {
-    if (type !== 'Table') return;
-    return (
-      <NoResult
-        loading={loading}
-        loadend={dataSource.loadend}
-        dataSource={dataSource.dataList}
-        image={<IconFont type="icon-key" />}
-        filters={_.omit(queryParams, ['sort_by'])}
-        noFoundText={intl.formatMessage({
-          id: 'noresult.keys.nofound'
-        })}
-        title={intl.formatMessage({ id: 'noresult.keys.title' })}
-        subTitle={intl.formatMessage({ id: 'noresult.keys.subTitle' })}
-      ></NoResult>
-    );
-  };
 
   useEffect(() => {
     if (pendingPageResetRef.current && queryParams.page !== 1) {

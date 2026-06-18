@@ -271,7 +271,7 @@ const Clusters: React.FC = () => {
   const handleOnCell = useMemoizedFn((record: ClusterListItem, dataIndex) => {
     if (dataIndex === 'name') {
       navigate(
-        `/cluster-management/clusters/detail?id=${record.id}&name=${record.name}&page=clusters`
+        `/resources/clusters/detail?id=${record.id}&name=${record.name}&page=clusters`
       );
     }
   });
@@ -321,13 +321,20 @@ const Clusters: React.FC = () => {
   // the session atom is cleared right after we open the modal, but
   // ClusterCreate mounts a tick later and needs the value to skip the
   // provider-catalog step. Cache it locally and clear on close.
-  const [pendingProviderHint, setPendingProviderHint] = useState<
-    string | undefined
-  >(undefined);
+  const [pendingProviderHint, setPendingProviderHint] = useState<{
+    providerHint?: string;
+    presetClusterType?: 'model' | 'gpu';
+  }>({
+    providerHint: undefined,
+    presetClusterType: undefined
+  });
 
   useEffect(() => {
     if (clusterSession?.firstAddCluster && dataSource.loadend) {
-      setPendingProviderHint(clusterSession.providerHint);
+      setPendingProviderHint({
+        providerHint: clusterSession.providerHint,
+        presetClusterType: clusterSession.presetClusterType
+      });
       openClusterModal();
       // reset session
       setClusterSession(null);
@@ -335,7 +342,10 @@ const Clusters: React.FC = () => {
   }, [clusterSession, dataSource.loadend]);
 
   const handleClusterModalClose = () => {
-    setPendingProviderHint(undefined);
+    setPendingProviderHint({
+      providerHint: undefined,
+      presetClusterType: undefined
+    });
     closeClusterModal();
   };
 
@@ -461,10 +471,10 @@ const Clusters: React.FC = () => {
       <DeleteModal ref={modalRef}></DeleteModal>
       <ClusterModal
         title={intl.formatMessage({
-          id: 'menu.clusterManagement.clusterCreate'
+          id: 'menu.resources.clusterCreate'
         })}
         open={clusterModalStatus.open}
-        providerHint={pendingProviderHint}
+        pendingProviderHint={pendingProviderHint}
         onClose={handleClusterModalClose}
       ></ClusterModal>
       {AddWorkerModal}

@@ -4,9 +4,9 @@ import {
   LockOutlined,
   UserOutlined
 } from '@ant-design/icons';
-import { Input as CInput, HighlightCode, IconFont } from '@gpustack/core-ui';
+import { HighlightCode, IconFont } from '@gpustack/core-ui';
 import { useIntl } from '@umijs/max';
-import { Button, Checkbox, Divider, Form, FormInstance } from 'antd';
+import { Button, Divider, Flex, Form, FormInstance, Input } from 'antd';
 import { createStyles } from 'antd-style';
 
 const useStyles = createStyles(({ token, css }) => {
@@ -27,6 +27,14 @@ const useStyles = createStyles(({ token, css }) => {
           color: ${token.colorTextSecondary};
           font-size: 14px;
         }
+      }
+    `,
+    passwordWrapper: css`
+      position: relative;
+      .forgot-password {
+        position: absolute;
+        right: 0;
+        top: 74px;
       }
     `
   };
@@ -78,11 +86,23 @@ const LocalUserForm: React.FC<LocalUserFormProps> = (props) => {
       // Same shape Buttons uses: 360px design width, capped at the
       // parent's inner width so the form doesn't overflow on the
       // enterprise cover layout (272px inner).
+      layout="vertical"
+      requiredMark={false}
+      styles={{
+        label: {
+          width: '100%',
+          lineHeight: '24px'
+        }
+      }}
       style={{ width: '360px', maxWidth: '100%', margin: '0 auto' }}
       onFinish={handleLogin}
     >
       <Form.Item
         name="username"
+        label={intl.formatMessage({ id: 'common.form.username' })}
+        style={{
+          marginBottom: 20
+        }}
         rules={[
           {
             required: true,
@@ -95,51 +115,58 @@ const LocalUserForm: React.FC<LocalUserFormProps> = (props) => {
           }
         ]}
       >
-        <CInput.Input
+        <Input
           autoComplete="username"
-          label={intl.formatMessage({ id: 'common.form.username' })}
           prefix={<UserOutlined />}
+          style={{ height: 44 }}
+          placeholder={intl.formatMessage({
+            id: 'common.login.username.holder'
+          })}
         />
       </Form.Item>
-      <Form.Item
-        name="password"
-        rules={[
-          {
-            required: true,
-            message: intl.formatMessage(
-              { id: 'common.form.rule.input' },
-              {
-                name: intl.formatMessage({ id: 'common.form.password' })
-              }
-            )
+      <div className={`${styles.passwordWrapper} password-wrapper`}>
+        <Form.Item
+          style={{
+            marginBottom: 20
+          }}
+          name="password"
+          label={
+            <Flex
+              align="center"
+              justify="space-between"
+              style={{ width: '100%' }}
+            >
+              <span>{intl.formatMessage({ id: 'common.form.password' })}</span>
+            </Flex>
           }
-        ]}
-      >
-        <CInput.Password
-          autoComplete="current-password"
-          prefix={<LockOutlined />}
-          label={intl.formatMessage({ id: 'common.form.password' })}
-        />
-      </Form.Item>
-      <div
-        className="flex-center flex-between"
-        style={{
-          marginBottom: 24
-        }}
-      >
-        <Form.Item noStyle name="autoLogin" valuePropName="checked">
-          <Checkbox style={{ marginLeft: 5 }}>
-            <span style={{ color: 'var(--ant-color-text-secondary)' }}>
-              {intl.formatMessage({ id: 'common.login.rember' })}
-            </span>
-          </Checkbox>
+          rules={[
+            {
+              required: true,
+              message: intl.formatMessage(
+                { id: 'common.form.rule.input' },
+                {
+                  name: intl.formatMessage({ id: 'common.form.password' })
+                }
+              )
+            }
+          ]}
+        >
+          <Input.Password
+            autoComplete="current-password"
+            prefix={<LockOutlined />}
+            style={{ height: 44 }}
+            placeholder={intl.formatMessage({
+              id: 'common.login.password.holder'
+            })}
+          />
         </Form.Item>
         <Button
           type="link"
           size="small"
+          className="forgot-password"
+          style={{ fontSize: 12, padding: 0 }}
           href={externalLinks.resetPassword}
           target="_blank"
-          style={{ padding: 0 }}
         >
           {intl.formatMessage({ id: 'common.button.forgotpassword' })}
         </Button>
@@ -150,7 +177,7 @@ const LocalUserForm: React.FC<LocalUserFormProps> = (props) => {
         block
         loading={props.loading}
         icon={<IconFont type="icon-login" />}
-        style={{ height: '48px', fontSize: '14px' }}
+        style={{ height: '44px', fontSize: '14px', marginTop: 20 }}
       >
         {intl.formatMessage({ id: 'common.button.login' })}
       </Button>

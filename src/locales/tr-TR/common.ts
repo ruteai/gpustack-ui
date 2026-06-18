@@ -46,6 +46,7 @@ export default {
   'common.button.enabled': 'Etkin',
   'common.button.disabled': 'Devre dışı',
   'common.button.upgrade': 'Yükselt',
+  'common.enterprise.feature': 'Available in GPUStack Enterprise',
   'common.input.holder': 'Lütfen girin',
   'common.validate.value': '{name} değeri gereklidir',
   'common.button.edit': 'Düzenle',
@@ -66,6 +67,7 @@ export default {
   'common.search.name.placeholder': 'ada göre filtrele',
   'common.search.id.placeholder': 'kimliğe göre filtrele',
   'common.filter.byId': 'kimliğe göre filtrele',
+  'common.filter.byCreator': 'Oluşturana göre filtrele',
   'common.table.type': 'Tür',
   'common.table.default': 'Varsayılan Değer',
   'common.copy.success': 'Kopyalama başarılı!',
@@ -165,6 +167,7 @@ export default {
   'common.time.hour': 'saat',
   'common.time.minute': 'dakika',
   'common.issue.report': 'Sorun bildir',
+  'common.github.star.tooltip': "GitHub'da bize yıldız verin",
   'common.social.discord': "Discord'umuza Katılın",
   'common.table.mark': 'Yorum',
   'common.table.rollback.mark': 'Geri Alma Yorumu',
@@ -261,6 +264,10 @@ export default {
   'common.login.auth': 'Kimlik doğrulanıyor...',
   'common.login.auth.failed': 'Kimlik doğrulama başarısız',
   'common.login.password': 'Şifre ile giriş yap',
+  'common.login.username.holder': 'Lütfen kullanıcı adını girin',
+  'common.login.password.holder': 'Lütfen şifreyi girin',
+  'common.login.newpassword.holder': 'Lütfen yeni şifreyi girin',
+  'common.login.confirm.holder': 'Lütfen şifreyi tekrar girin',
   'common.external.login': '{type} ile giriş yap',
   'common.sso.noConfig':
     'Bu sistemde çoklu oturum açma etkinleştirilmemiş. Lütfen yöneticinize başvurun.',
@@ -289,6 +296,7 @@ export default {
   'common.image.limit.height': 'Image height must be {height}.',
   'common.remaining': 'Kalan {count}',
   'common.max': 'Maks. {count}',
+  'common.max.count': '{label} Sayısı',
   'common.validate.group': 'Please complete the {group} configuration',
   'common.preferences': 'Tercihler'
 };

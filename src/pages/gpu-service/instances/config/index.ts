@@ -3,6 +3,7 @@ import { StatusType } from '@/config/types';
 import { IconFont, icons } from '@gpustack/core-ui';
 import _ from 'lodash';
 import React from 'react';
+import { ListItem } from '../config/types';
 
 export const InstanceStatusValueMap = {
   Scheduling: 'Scheduling',
@@ -14,20 +15,48 @@ export const InstanceStatusValueMap = {
   Preparing: 'Preparing',
   NotReady: 'NotReady',
   Ready: 'Ready',
-  Starting: 'Starting'
+  Starting: 'Starting',
+  Deleting: 'Deleting',
+  Stopping: 'Stopping',
+  Stopped: 'Stopped',
+  CreateFailed: 'CreateFailed',
+  SSHPublicKeyCreateFailed: 'SSHPublicKeyCreateFailed',
+  PersistentVolumeTypeCreateFailed: 'PersistentVolumeTypeCreateFailed',
+  PersistentVolumeCreateFailed: 'PersistentVolumeCreateFailed',
+  Unknown: 'Unknown'
 };
 
+export const K8SStatuses = [
+  InstanceStatusValueMap.Scheduling,
+  InstanceStatusValueMap.Pending,
+  InstanceStatusValueMap.Scheduled,
+  InstanceStatusValueMap.Initializing,
+  InstanceStatusValueMap.InitializeFailed,
+  InstanceStatusValueMap.Initialized,
+  InstanceStatusValueMap.Preparing,
+  InstanceStatusValueMap.NotReady,
+  InstanceStatusValueMap.Ready
+];
+
+export const GPUStackFailedStatuses = [
+  InstanceStatusValueMap.CreateFailed,
+  InstanceStatusValueMap.SSHPublicKeyCreateFailed,
+  InstanceStatusValueMap.PersistentVolumeTypeCreateFailed,
+  InstanceStatusValueMap.PersistentVolumeCreateFailed
+];
+
 export const InstanceStatusLabelMap: Record<string, string> = {
-  [InstanceStatusValueMap.Scheduling]: 'Scheduling',
-  [InstanceStatusValueMap.Pending]: 'Pending',
-  [InstanceStatusValueMap.Scheduled]: 'Scheduled',
-  [InstanceStatusValueMap.Initializing]: 'Initializing',
-  [InstanceStatusValueMap.InitializeFailed]: 'InitializeFailed',
-  [InstanceStatusValueMap.Initialized]: 'Initialized',
-  [InstanceStatusValueMap.Preparing]: 'Preparing',
-  [InstanceStatusValueMap.NotReady]: 'NotReady',
-  [InstanceStatusValueMap.Ready]: 'Ready',
-  [InstanceStatusValueMap.Starting]: 'Starting'
+  // === K8s Statuses ===
+  ...Object.fromEntries(K8SStatuses.map((status) => [status, status])),
+  // === GPUStack Statuses no logs and events===
+  [InstanceStatusValueMap.Deleting]: 'Deleting',
+  [InstanceStatusValueMap.Stopping]: 'Stopping',
+  [InstanceStatusValueMap.Stopped]: 'Stopped',
+  [InstanceStatusValueMap.Unknown]: 'Unknown',
+  [InstanceStatusValueMap.Starting]: 'Starting',
+  ...Object.fromEntries(
+    GPUStackFailedStatuses.map((status) => [status, status])
+  )
 };
 
 export const status: Record<string, StatusType> = {
@@ -40,66 +69,91 @@ export const status: Record<string, StatusType> = {
   [InstanceStatusValueMap.Preparing]: StatusMaps.transitioning,
   [InstanceStatusValueMap.NotReady]: StatusMaps.error,
   [InstanceStatusValueMap.Ready]: StatusMaps.success,
-  [InstanceStatusValueMap.Starting]: StatusMaps.transitioning
+  [InstanceStatusValueMap.Starting]: StatusMaps.transitioning,
+  [InstanceStatusValueMap.Deleting]: StatusMaps.warning,
+  [InstanceStatusValueMap.Stopping]: StatusMaps.transitioning,
+  [InstanceStatusValueMap.Stopped]: StatusMaps.inactive,
+  [InstanceStatusValueMap.CreateFailed]: StatusMaps.error,
+  [InstanceStatusValueMap.SSHPublicKeyCreateFailed]: StatusMaps.error,
+  [InstanceStatusValueMap.PersistentVolumeTypeCreateFailed]: StatusMaps.error,
+  [InstanceStatusValueMap.PersistentVolumeCreateFailed]: StatusMaps.error,
+  [InstanceStatusValueMap.Unknown]: StatusMaps.error
 };
 
-// Lifecycle actions (logs/events/start/stop) require K8s proxy endpoints that
-// the new /v2/gpu-instances API does not yet expose; keep them visible but
-// disabled until backend support lands.
-export const rowActionList = [
+export interface InstanceRowAction {
+  label: string;
+  key: string;
+  locale?: boolean;
+  icon?: React.ReactNode;
+  props?: Record<string, any>;
+  show?: (record: ListItem) => boolean;
+  disabled?: (record: ListItem) => boolean;
+}
+
+export const rowActionList: InstanceRowAction[] = [
   {
     label: 'common.button.edit',
     key: 'edit',
     locale: true,
     icon: icons.EditOutlined
   },
-  // {
-  //   label: 'common.button.view',
-  //   key: 'view',
-  //   locale: true,
-  //   icon: icons.DetailInfo
-  // },
   {
     label: 'common.button.viewlog',
     key: 'viewlog',
     locale: true,
-    icon: React.createElement(IconFont, { type: 'icon-logs' })
+    icon: React.createElement(IconFont, { type: 'icon-logs' }),
+    show: (record: ListItem) => {
+      const phase = record.status?.phase;
+      return [InstanceStatusValueMap.Ready].includes(phase as string);
+    }
   },
   {
     label: 'common.button.viewevent',
     key: 'viewevent',
     locale: true,
-    icon: icons.ProfileOutlined
+    icon: icons.ProfileOutlined,
+    show: (record: ListItem) => {
+      const phase = record.status?.phase;
+      return [...K8SStatuses, InstanceStatusValueMap.Starting].includes(
+        phase as string
+      );
+    }
   },
-  // {
-  //   label: 'common.button.start',
-  //   key: 'start',
-  //   locale: true,
-  //   icon: icons.Play,
-  //   props: {
-  //     disabled: true
-  //   }
-  // },
-  // {
-  //   label: 'common.button.stop',
-  //   key: 'stop',
-  //   locale: true,
-  //   icon: icons.Stop,
-  //   props: {
-  //     disabled: true
-  //   }
-  // },
-  // {
-  //   label: 'common.button.recreate',
-  //   key: 'recreate',
-  //   locale: true,
-  //   icon: icons.RetweetOutlined
-  // },
+  {
+    label: 'common.button.start',
+    key: 'start',
+    locale: true,
+    icon: icons.Play,
+    props: {
+      disabled: false
+    },
+    show: (record: ListItem) => {
+      const phase = record.status?.phase;
+      return [InstanceStatusValueMap.Stopped].includes(phase as string);
+    }
+  },
+  {
+    label: 'common.button.stop',
+    key: 'stop',
+    locale: true,
+    icon: icons.Stop,
+    props: {
+      disabled: false
+    },
+    show: (record: ListItem) => {
+      const phase = record.status?.phase;
+      return [InstanceStatusValueMap.Ready].includes(phase as string);
+    }
+  },
   {
     label: 'common.button.delete',
     key: 'delete',
     locale: true,
     icon: icons.DeleteOutlined,
+    show: (record: ListItem) => {
+      const phase = record.status?.phase;
+      return true;
+    },
     props: {
       danger: true
     }
@@ -110,22 +164,19 @@ export const batchActionList = [
   {
     label: 'common.button.start',
     key: 'start',
-    icon: icons.Play,
-    props: {
-      disabled: true
-    }
+    locale: true,
+    icon: icons.Play
   },
   {
     label: 'common.button.stop',
     key: 'stop',
-    icon: icons.Stop,
-    props: {
-      disabled: true
-    }
+    locale: true,
+    icon: icons.Stop
   },
   {
     label: 'common.button.delete',
     key: 'delete',
+    locale: true,
     icon: icons.DeleteOutlined,
     props: {
       danger: true
@@ -172,8 +223,23 @@ export const convertKiToGi = (value?: string): string | undefined => {
   const match = /^(-?\d+(?:\.\d+)?)(Ki|Mi|Gi|Ti)$/.exec(value);
   if (!match) return value;
   const [, num, unit] = match;
-  if (unit === 'Ti') return `${_.floor(Number(num), 0)}Ti`;
-  return `${_.floor(Number(num) / GI_DIVISOR[unit], 0)}Gi`;
+  if (unit === 'Ti') return `${_.floor(Number(num), 0)} Ti`;
+  return `${_.floor(Number(num) / GI_DIVISOR[unit], 0)} Gi`;
+};
+
+// Memory quantity → display string, flooring to whole Gi. Accepts a k8s
+// quantity string ("16Gi" / "32607Mi") or a raw MiB number (as the Usage
+// breakdown carries it). Centralizes the conversion so the GPU Instances list
+// and the Usage tab render identical sizes (e.g. both "31GB", not 31 vs 32).
+export const formatMemoryDisplay = (
+  value?: string | number
+): string | undefined => {
+  if (!value) return undefined;
+  const quantity = typeof value === 'number' ? `${value}Mi` : value;
+  return (
+    convertKiToGi(quantity)?.replace(/Gi$/, 'GB').replace(/Ti$/, 'TB') ||
+    undefined
+  );
 };
 
 const parseQuantity = (value?: string | null): number => {
@@ -183,7 +249,7 @@ const parseQuantity = (value?: string | null): number => {
 };
 
 // Returns the slider max for the accelerator count: the largest
-// tier.onceMaxRequest.accelerator across all acceleratorTiers (not from candidates).
+// tier.onceMaxRequest.accelerator across all tiers (not from candidates).
 export const getAcceleratorMax = (
   tiers?: { onceMaxRequest: { accelerator?: string } }[] | null
 ) => {
@@ -214,7 +280,7 @@ export const pickCandidateForAccelerator = <
       }[]
     | undefined
     | null,
-  count: number
+  { count, acceleratable }: { count: number; acceleratable?: boolean }
 ): C | null => {
   if (!tiers?.length) return null;
 
@@ -231,7 +297,10 @@ export const pickCandidateForAccelerator = <
 
   // count === 0 ? parseQuantity(tier.onceMaxRequest.accelerator) > count; this is CPU-only case.
   for (const tier of sorted) {
-    const fits = parseQuantity(tier.onceMaxRequest?.accelerator) >= count;
+    const acceleratorCount = parseQuantity(tier.onceMaxRequest?.accelerator);
+    const fits = acceleratable
+      ? acceleratorCount >= count
+      : acceleratorCount === 0;
     if (!fits) continue;
     const candidate = tier.candidates?.find(hasResources);
     if (candidate) return candidate;

@@ -110,6 +110,7 @@ export interface ListItem extends FormData {
   created_at: string;
   updated_at: string;
   deleted_at?: string | null;
+  creator_id?: number | null;
   status?: InstanceStatus | null;
 }
 
@@ -149,6 +150,27 @@ export interface InstanceTypeOnceMaxRequestResource {
   localStorage: QuanityLocalStorage;
 }
 
+export interface CPUCache {
+  l1i: string;
+  l1d: string;
+  l2: string;
+  l3: string;
+}
+
+export interface CPUInfo {
+  physicalCores: string;
+  threadsPerPhysicalCore: string;
+  logicalCores: string;
+  stepping: string | null;
+  clockSpeed: string | null;
+  maxClockSpeed: string | null;
+  cacheLine: string;
+  cache: CPUCache;
+  manufacturer: string;
+  product: string;
+  family: string;
+}
+
 export interface InstanceTypeSpec {
   group: string;
   acceleratable: boolean;
@@ -158,10 +180,15 @@ export interface InstanceTypeSpec {
   family?: string | null;
   computeCapability?: string | null;
   sliced?: string | null;
+  maxComputeUnitCount?: number;
   unitResources?: {
     cpu: QuanityCPU;
     ram: QuanityMemory;
   };
+  os?: string;
+  arch?: string;
+  cpu?: CPUInfo;
+  cache?: Record<string, string>;
   unitResourcesParsed?: {
     cpu: {
       cores?: number;
@@ -178,14 +205,13 @@ export interface InstanceTypeSpec {
 
 export interface InstanceTypeStatus {
   onceMaxRequest: InstanceTypeOnceMaxRequestResource;
-  acceleratorTiers?: InstanceTypeTier[] | null;
+  tiers?: InstanceTypeTier[] | null;
 }
 
 export interface InstanceTypeItem {
   name: string;
   spec: InstanceTypeSpec;
   disabled?: boolean;
-  maxAccelerator?: number;
   status: InstanceTypeStatus;
 }
 

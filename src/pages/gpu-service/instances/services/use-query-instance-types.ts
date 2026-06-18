@@ -26,14 +26,18 @@ export default function useQueryInstanceTypes() {
   const [dataList, setDataList] = React.useState<InstanceType[]>([]);
 
   const isAvailable = (item: InstanceTypeItem) => {
-    if (!item.spec?.acceleratable)
+    if (!item.spec?.acceleratable) {
+      const max =
+        ceilMilliToCore(item.status?.onceMaxRequest?.cpu || '0')?.cores || 0;
       return {
-        maxAccelerator: 0,
-        available: true
+        maxComputeUnitCount: max, // CPU resource max request
+        available: max > 0
       };
-    const max = getAcceleratorMax(item.status?.acceleratorTiers);
+    }
+
+    const max = getAcceleratorMax(item.status?.tiers);
     return {
-      maxAccelerator: max || 0,
+      maxComputeUnitCount: max || 0,
       available: (max || 0) > 0
     };
   };
@@ -54,20 +58,25 @@ export default function useQueryInstanceTypes() {
           unitResourcesParsed: {
             cpu: ceilMilliToCore(item.spec?.unitResources?.cpu ?? null),
             ram: parseQuantityToGi(item.spec?.unitResources?.ram ?? null)
-          }
+          },
+          maxComputeUnitCount: remainingData.maxComputeUnitCount
         },
         status: {
           ...item.status,
           onceMaxRequest: {
             ...rawMax,
-            cpu: rawMax?.cpu ? `${ceilMilliToCore(rawMax.cpu)?.cores}` : '',
-            ram: rawMax?.ram ? `${parseQuantityToGi(rawMax.ram)?.value}` : '',
+            cpu: rawMax?.cpu
+              ? `${ceilMilliToCore(rawMax.cpu)?.cores || 0}`
+              : '',
+            ram: rawMax?.ram
+              ? `${parseQuantityToGi(rawMax.ram)?.value || 0}`
+              : '',
             localStorage: rawMax?.localStorage
-              ? `${parseQuantityToGi(rawMax.localStorage)?.value}`
+              ? `${parseQuantityToGi(rawMax.localStorage)?.value || 0}`
               : ''
           }
         },
-        maxAccelerator: remainingData.maxAccelerator,
+
         disabled: !remainingData.available
       };
     });
@@ -78,6 +87,7 @@ export default function useQueryInstanceTypes() {
 
   return {
     detailData: dataList,
+    setDataList,
     loading,
     cancelRequest,
     fetchData: queryInstanceTypes

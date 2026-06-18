@@ -36,13 +36,19 @@ const StorageVolume = ({
   const [overlayOpen, setOverlayOpen] = useState(false);
 
   useEffect(() => {
-    fetchStorage({ page: 1, perPage: 100 });
+    const initStorage = async () => {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 200);
+      });
+      fetchStorage({ page: -1 });
+    };
+    initStorage();
   }, []);
 
   const storageOptions = useMemo(
     () =>
       (storageData?.items || []).map((item) => ({
-        label: `${item.name} / ${item.spec?.capacity ?? '-'}`,
+        label: `${item.displayName || item.name} / ${item.spec?.capacity ?? '-'}`,
         value: item.name
       })),
     [storageData]
@@ -191,7 +197,7 @@ const StorageVolume = ({
               disabled={disabled}
               showSearch
               label={intl.formatMessage({
-                id: 'gpuservice.storage.persistentVolume'
+                id: 'gpuservice.form.storage.select'
               })}
               required
               options={storageOptions}
@@ -202,6 +208,9 @@ const StorageVolume = ({
 
       <Form.Item<FormData>
         name={['spec', 'volumeMount']}
+        style={{
+          marginBottom: 12
+        }}
         rules={[
           {
             required: true,

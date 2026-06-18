@@ -141,15 +141,6 @@ const baseRoutes = [
         component: './model-routes/index'
       },
       {
-        name: 'usage',
-        path: '/models/usage',
-        key: 'usage',
-        icon: 'icon-usage-outlined',
-        selectedIcon: 'icon-usage-filled',
-        defaultIcon: 'icon-usage-outlined',
-        component: './usage/index'
-      },
-      {
         name: 'providers',
         path: '/models/providers',
         key: 'modelProviders',
@@ -197,6 +188,7 @@ const baseRoutes = [
         icon: 'icon-files',
         selectedIcon: 'icon-files-filled',
         defaultIcon: 'icon-files',
+        access: 'canSeeOrgAdmin',
         component: './resources/components/model-files'
       }
     ]
@@ -275,6 +267,16 @@ const baseRoutes = [
         redirect: '/resources/workers'
       },
       {
+        name: 'clusters',
+        path: '/resources/clusters/list',
+        key: 'clusters',
+        icon: 'icon-cluster2-outline',
+        selectedIcon: 'icon-cluster2-filled',
+        defaultIcon: 'icon-cluster2-outline',
+        component: './cluster-management/clusters',
+        subMenu: ['/resources/clusters/detail', '/resources/clusters/create']
+      },
+      {
         name: 'workers',
         path: '/resources/workers',
         key: 'workers',
@@ -291,50 +293,65 @@ const baseRoutes = [
         selectedIcon: 'icon-gpu-filled',
         defaultIcon: 'icon-gpu1',
         component: './resources/components/gpus'
-      }
-    ]
-  },
-  {
-    name: 'clusterManagement',
-    path: '/cluster-management',
-    key: 'clusterManagement',
-    access: 'canSeeOrgAdmin',
-    routes: [
-      {
-        path: '/cluster-management',
-        redirect: '/cluster-management/clusters/list'
       },
       {
-        name: 'clusters',
-        path: '/cluster-management/clusters/list',
-        key: 'clusters',
-        icon: 'icon-cluster2-outline',
-        selectedIcon: 'icon-cluster2-filled',
-        defaultIcon: 'icon-cluster2-outline',
-        component: './cluster-management/clusters',
-        subMenu: [
-          '/cluster-management/clusters/detail',
-          '/cluster-management/clusters/create'
-        ]
+        name: 'credentials',
+        path: '/resources/credentials',
+        key: 'credentials',
+        icon: 'icon-credential-outline',
+        selectedIcon: 'icon-credential-filled',
+        defaultIcon: 'icon-credential-outline',
+        component: './cluster-management/credentials'
       },
       {
         name: 'clusterDetail',
-        path: '/cluster-management/clusters/detail',
+        path: '/resources/clusters/detail',
         key: 'clusterDetail',
         icon: 'icon-cluster2-outline',
         selectedIcon: 'icon-cluster2-filled',
         defaultIcon: 'icon-cluster2-outline',
         hideInMenu: true,
         component: './cluster-management/cluster-detail'
+      }
+    ]
+  },
+  {
+    // Cross-resource consumption (tokens + GPU/CPU instances + storage).
+    // A folder so it matches the other top-level groups; more usage views can
+    // graduate in here later.
+    name: 'billingAndUsage',
+    path: '/usage',
+    key: 'usageGroup',
+    icon: 'icon-usage-outlined',
+    selectedIcon: 'icon-usage-filled',
+    defaultIcon: 'icon-usage-outlined',
+    routes: [
+      {
+        path: '/usage',
+        redirect: '/usage/overview'
       },
       {
-        name: 'credentials',
-        path: '/cluster-management/credentials',
-        key: 'credentials',
-        icon: 'icon-credential-outline',
-        selectedIcon: 'icon-credential-filled',
-        defaultIcon: 'icon-credential-outline',
-        component: './cluster-management/credentials'
+        name: 'usage',
+        path: '/usage/overview',
+        key: 'usage',
+        icon: 'icon-usage-outlined',
+        selectedIcon: 'icon-usage-filled',
+        defaultIcon: 'icon-usage-outlined',
+        component: './usage/index'
+      },
+      {
+        name: 'billing',
+        path: '/usage/billing',
+        key: 'billing',
+        icon: 'icon-billing-outlined',
+        selectedIcon: 'icon-billing-filled',
+        defaultIcon: 'icon-billing-outlined',
+        hideInMenu: process.env.ENABLE_ENTERPRISE === 'true',
+        // OSS exposes the menu as a teaser for the enterprise billing
+        // module. The page itself just renders an upsell notice — the real
+        // billing UI lives in the enterprise plugin and shadows this route
+        // via `routes.extensions.ts`.
+        component: './billing'
       }
     ]
   },
@@ -346,6 +363,20 @@ const baseRoutes = [
       {
         path: '/access-control',
         redirect: '/access-control/users'
+      },
+      {
+        name: 'organizations',
+        path: '/access-control/organizations',
+        key: 'organizations',
+        icon: 'icon-org-outlined',
+        selectedIcon: 'icon-org-filled',
+        defaultIcon: 'icon-org-outlined',
+        // OSS exposes the menu to platform admins as a teaser for the
+        // enterprise multi-tenancy module. The page itself just renders
+        // an upsell notice — the real CRUD UI lives in the enterprise
+        // plugin and shadows this route via `routes.extensions.ts`.
+        access: 'canSeeAdmin',
+        component: './organizations'
       },
       {
         name: 'users',
@@ -380,8 +411,8 @@ const baseRoutes = [
   },
   {
     name: 'profile',
-    path: '/profile',
-    key: 'profile',
+    path: '/preferences',
+    key: 'preferences',
     hideInMenu: true,
     component: './profile',
     icon: 'User'

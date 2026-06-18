@@ -1,4 +1,6 @@
-import { validateLabelNameRegxFor63 } from '@/config';
+import PluginExtraFields from '@/components/plugin-extra-fields';
+import { PageAction, validateLabelNameRegxFor63 } from '@/config';
+import { PageActionType } from '@/config/types';
 import {
   Input as CInput,
   InputNumber,
@@ -7,7 +9,7 @@ import {
   useAppUtils
 } from '@gpustack/core-ui';
 import { useIntl } from '@umijs/max';
-import { Flex, Form } from 'antd';
+import { Form } from 'antd';
 import { useMemo } from 'react';
 import { GPUsConfigs } from '../../../resources/config/gpu-driver';
 import formStyles from '../../instances/styles/instances.module.less';
@@ -28,12 +30,14 @@ export interface BasicResourceMax {
 
 interface BasicProps {
   page?: 'template' | 'instance';
+  action?: PageActionType;
   disabled?: boolean;
   onceMaxRequest?: BasicResourceMax;
 }
 
 const Basic: React.FC<BasicProps> = ({
   page = 'template',
+  action,
   onceMaxRequest,
   disabled
 }) => {
@@ -43,10 +47,12 @@ const Basic: React.FC<BasicProps> = ({
   const manufacturerOptions = useMemo(
     () =>
       Object.values(GPUsConfigs).map((item) => ({
-        label: item.label,
+        label: item.locales.locale
+          ? intl.formatMessage({ id: item.locales.label })
+          : item.locales.label,
         value: item.gpuVendor
       })),
-    []
+    [intl]
   );
 
   const renderStorageLabel = (): React.ReactNode => {
@@ -80,7 +86,7 @@ const Basic: React.FC<BasicProps> = ({
             ]}
           >
             <CInput.Input
-              disabled={disabled}
+              disabled={disabled || action === PageAction.EDIT}
               label={intl.formatMessage({ id: 'common.table.name' })}
               required
             />
@@ -105,6 +111,10 @@ const Basic: React.FC<BasicProps> = ({
               maxLength={63}
             />
           </Form.Item>
+          <PluginExtraFields
+            name="CreateOrgScopeField"
+            context={{ action, allowGlobal: true }}
+          />
           <Form.Item<FormData>
             name="manufacturer"
             rules={[
@@ -169,39 +179,39 @@ const Basic: React.FC<BasicProps> = ({
           />
         </Form.Item>
       </div>
-
-      <Flex gap={12}>
-        {page === 'template' && (
-          <div style={{ flex: 1 }}>
-            <Form.Item<FormData> name={['spec', 'volumeMount']}>
-              <CInput.Input
-                label={intl.formatMessage({
-                  id: 'gpuservice.template.mountPath'
-                })}
-                placeholder={intl.formatMessage({
-                  id: 'clusters.volume.mountPath.format'
-                })}
-                disabled={disabled}
-              />
-            </Form.Item>
-          </div>
-        )}
-        <div style={{ flex: 1 }}>
-          <Form.Item<FormData>
-            name={['spec', 'resources', 'localStorage']}
-            normalize={(value) => (value ? `${value}Gi` : undefined)}
-            getValueProps={(value) => ({
-              value: value ? String(value).replace(/Gi$/, '') : ''
+      <Form.Item<FormData>
+        name={['spec', 'resources', 'localStorage']}
+        normalize={(value) => (value ? `${value}Gi` : undefined)}
+        getValueProps={(value) => ({
+          value: value ? String(value).replace(/Gi$/, '') : ''
+        })}
+      >
+        <InputNumber
+          label={renderStorageLabel()}
+          description={intl.formatMessage({
+            id: 'gpuservice.template.containerDisk.tips'
+          })}
+          min={0}
+          max={onceMaxRequest?.localStorage ?? undefined}
+          disabled={disabled}
+        />
+      </Form.Item>
+      {page === 'template' && (
+        <Form.Item<FormData> name={['spec', 'volumeMount']}>
+          <CInput.Input
+            label={intl.formatMessage({
+              id: 'gpuservice.template.mountPath'
             })}
-          >
-            <InputNumber
-              label={renderStorageLabel()}
-              max={onceMaxRequest?.localStorage ?? undefined}
-              disabled={disabled}
-            />
-          </Form.Item>
-        </div>
-      </Flex>
+            description={intl.formatMessage({
+              id: 'gpuservice.template.mountPath.tips'
+            })}
+            placeholder={intl.formatMessage({
+              id: 'clusters.volume.mountPath.format'
+            })}
+            disabled={disabled}
+          />
+        </Form.Item>
+      )}
       <Ports disabled={disabled} />
       <Env disabled={disabled} />
     </>

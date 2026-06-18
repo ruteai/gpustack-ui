@@ -98,7 +98,7 @@ const ModelRoutes: React.FC = () => {
     API: MODEL_ROUTES,
     contentForDelete: 'menu.models.routes'
   });
-  const { watchDataList: allRouteTargets, deleteItemFromCache } =
+  const { watchDataList, setWatchDataList, deleteItemFromCache } =
     useWatchList(MODEL_ROUTE_TARGETS);
   const [expandAtom] = useAtom(expandKeysAtom);
   const {
@@ -121,12 +121,14 @@ const ModelRoutes: React.FC = () => {
     openAccessControlModalStatus
   } = useAccessControl();
   const { sourceModels, fetchSourceModels } = useTargetSourceModels();
-  const { handleOpenPlayGround } = useOpenPlayground();
+  const { handleOpenPlayGround, generateModelName } = useOpenPlayground();
   const { apiAccessInfo, openViewAPIInfo, closeViewAPIInfo } = useViewApIInfo();
   const [registerRouteConfig, setRegisterRouteConfig] = useAtom(
     registerRouteConfigAtom
   );
   const [modelList, setModelsList] = useState<Global.BaseOption<number>[]>([]);
+
+  console.log('dataSource', dataSource);
 
   useEffect(() => {
     const fetchModels = async () => {
@@ -214,7 +216,10 @@ const ModelRoutes: React.FC = () => {
     } else if (val === 'chat') {
       handleOpenPlayGround(row);
     } else if (val === 'api') {
-      openViewAPIInfo(row);
+      openViewAPIInfo({
+        ...row,
+        name: generateModelName(row)
+      });
     }
   });
 
@@ -308,18 +313,8 @@ const ModelRoutes: React.FC = () => {
     }
   }, [registerRouteConfig, dataSource.loadend]);
 
-  // Generic per-row plugin slot. Each enterprise plugin contributes a
-  // `{ key, labelId, icon, priority, form, useCreate }` entry; the host
-  // renders a button per entry in the dropdown and renders one
-  // `ModelRouteConfigActionMount` per entry — those mounts own each
-  // entry's controller and register it back into `controllersRef` so
-  // dropdown clicks can route to the correct `openModal`. See
-  // `./plugin.tsx`.
-  //
-  // The action list is read once. Plugins are registered at boot and
-  // never recompute, so the reference is stable for the lifetime of
-  // the page and `useMemo([])` is safe.
   const configActions = useMemo(() => getModelRouteConfigActions(), []);
+
   const controllersRef = useRef<
     Record<string, ModelRouteConfigActionController>
   >({});
@@ -336,9 +331,6 @@ const ModelRoutes: React.FC = () => {
     }
   );
 
-  // Per-row save closes the drawer and refetches the table. The wrapped
-  // `fetchAPI` above takes care of bumping `pluginContext.refreshToken`
-  // for derived plugin data.
   const handleConfigActionOk = useMemoizedFn(() => {
     fetchData();
   });
@@ -366,7 +358,7 @@ const ModelRoutes: React.FC = () => {
         ></FilterBar>
         <TableProvider
           value={{
-            allChildren: allRouteTargets,
+            allChildren: watchDataList,
             setDisableExpand: setDisableExpand
           }}
         >
@@ -439,11 +431,6 @@ const ModelRoutes: React.FC = () => {
         onClose={closeViewAPIInfo}
       ></APIAccessInfoModal>
       <DeleteModal ref={modalRef}></DeleteModal>
-      {/* One mount per registered action. Each mount calls its
-          entry's `useCreate` (single hook per component, so iterating
-          the plugin list doesn't violate the Rules of Hooks),
-          renders the form, and registers its controller so dropdown
-          clicks can dispatch to it. */}
       {configActions.map((action) => (
         <ModelRouteConfigActionMount
           key={action.key}
@@ -452,13 +439,6 @@ const ModelRoutes: React.FC = () => {
           onOk={handleConfigActionOk}
         />
       ))}
-      {/* Page-level data lifecycle for plugin-contributed extra
-          columns. Receives the current list of visible route ids so
-          the plugin can bulk-fetch their per-user defaults in one
-          call (used by the quota-default column cells); `refreshToken`
-          bumps after a per-row save so derived page data refetches
-          even when the row set is unchanged. Renders nothing when no
-          plugin is registered. */}
       <PluginExtraFields name="ModelRoutesPageGlobal" context={pluginContext} />
     </>
   );

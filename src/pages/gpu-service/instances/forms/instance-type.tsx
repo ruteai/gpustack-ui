@@ -3,14 +3,16 @@ import { PageActionType } from '@/config/types';
 import NumberSelection from '@/pages/_components/number-selection';
 import { InputNumber } from '@gpustack/core-ui';
 import { useIntl } from '@umijs/max';
-import { Alert, Flex, Form } from 'antd';
+import { Flex, Form } from 'antd';
 import _ from 'lodash';
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import styled from 'styled-components';
 import { BasicResourceMax } from '../../templates/forms/basic';
 import { parseJsonSafe } from '../../utils';
-import InstanceTypeItem from '../components/instance-type-item';
-import { getAcceleratorMax } from '../config';
+import InstanceTypeItem, {
+  InstanceMetadataSection
+} from '../components/instance-type-item';
+import { FormContext } from '../config/form-context';
 import {
   FormData,
   InstanceTypeItem as InstanceTypeItemModel,
@@ -30,19 +32,25 @@ const SelectedCard = styled.div`
 
 interface InstanceTypePickerProps {
   selectedInstanceType?: InstanceTypeItemModel;
+  noAvailable?: boolean;
 }
 
 const InstanceTypePicker: React.FC<InstanceTypePickerProps> = ({
-  selectedInstanceType
+  selectedInstanceType,
+  noAvailable
 }) => {
   const intl = useIntl();
   return (
     <SelectedCard>
       {selectedInstanceType ? (
-        <InstanceTypeItem item={selectedInstanceType} showStatus={false} />
+        <InstanceTypeItem item={selectedInstanceType} />
       ) : (
         <span style={{ color: 'var(--ant-color-text-tertiary)' }}>
-          {intl.formatMessage({ id: 'gpuservice.instance.type.required' })}
+          {intl.formatMessage({
+            id: noAvailable
+              ? 'gpuservice.instance.type.noAvailable'
+              : 'gpuservice.instance.type.required'
+          })}
         </span>
       )}
     </SelectedCard>
@@ -55,6 +63,10 @@ interface InstanceTypeFormItemProps {
   currentData?: ListItem;
   selectedInstanceType?: InstanceTypeItemModel;
   onceMaxRequest?: BasicResourceMax;
+  // True when the (org-scoped) instance-type list is empty — e.g. the chosen
+  // org owns no clusters. Surface a "no available" message instead of the
+  // "please select" placeholder + empty CPU / memory inputs.
+  noAvailableTypes?: boolean;
   onGPUCountChange?: (value: number) => void;
 }
 
@@ -64,14 +76,22 @@ const InstanceTypeFormItem: React.FC<InstanceTypeFormItemProps> = ({
   currentData,
   selectedInstanceType,
   onceMaxRequest,
+  noAvailableTypes,
   onGPUCountChange
 }) => {
   const intl = useIntl();
+  const { isGPUType } = useContext(FormContext);
 
-  const maxGpuCount =
-    action === PageAction.EDIT
-      ? _.toNumber(currentData?.spec?.resources?.accelerator) || 0
-      : getAcceleratorMax(selectedInstanceType?.status?.acceleratorTiers);
+  const maxComputeUnitCount = useMemo(() => {
+    if (action === PageAction.EDIT) {
+      const description = parseJsonSafe(
+        currentData?.description || '{}',
+        {} as any
+      );
+      return description.spec?.maxComputeUnitCount || 0;
+    }
+    return selectedInstanceType?.spec?.maxComputeUnitCount || 0;
+  }, [action, currentData, selectedInstanceType]);
 
   const isGPU = useMemo(() => {
     if (action === PageAction.EDIT) {
@@ -92,7 +112,7 @@ const InstanceTypeFormItem: React.FC<InstanceTypeFormItemProps> = ({
     return (
       <Flex gap={4} align="center">
         {label}
-        {!isGPU && (
+        {!isGPUType && (
           <span>
             ({intl.formatMessage({ id: 'common.max' }, { count: max })})
           </span>
@@ -102,7 +122,7 @@ const InstanceTypeFormItem: React.FC<InstanceTypeFormItemProps> = ({
   };
 
   const renderMemoryLabel = (): React.ReactNode => {
-    if (isGPU || action === PageAction.EDIT || !onceMaxRequest?.memory) {
+    if (isGPUType || action === PageAction.EDIT || !onceMaxRequest?.memory) {
       return intl.formatMessage({ id: 'gpuservice.template.memory' });
     }
 
@@ -122,7 +142,12 @@ const InstanceTypeFormItem: React.FC<InstanceTypeFormItemProps> = ({
           color: 'var(--ant-color-text-disabled)'
         }}
       >
-        <Flex align="flex-start" orientation="vertical">
+        <Flex
+          align="flex-start"
+          orientation="vertical"
+          justify="space-between"
+          gap={16}
+        >
           <span
             style={{
               fontWeight: 400
@@ -132,11 +157,23 @@ const InstanceTypeFormItem: React.FC<InstanceTypeFormItemProps> = ({
               ? `${description.product} x ${currentData?.spec?.resources?.accelerator}`
               : 'CPU'}
           </span>
+          <InstanceMetadataSection spec={description}></InstanceMetadataSection>
         </Flex>
       </SelectedCard>
     );
   };
 
+  const numberSelectionLabel = isGPUType
+    ? {
+        label: 'GPU',
+        maxLabel: 'gpuservice.instance.gpuCount.max',
+        minLabel: 'gpuservice.instance.gpuCount.min'
+      }
+    : {
+        label: 'CPU',
+        maxLabel: 'gpuservice.instance.cpuCount.max',
+        minLabel: 'gpuservice.instance.cpuCount.min'
+      };
   return (
     <div data-field="instanceType">
       <FieldBlock>
@@ -152,14 +189,23 @@ const InstanceTypeFormItem: React.FC<InstanceTypeFormItemProps> = ({
           ]}
         >
           {action === PageAction.CREATE && (
-            <InstanceTypePicker selectedInstanceType={selectedInstanceType} />
+            <InstanceTypePicker
+              selectedInstanceType={selectedInstanceType}
+              noAvailable={noAvailableTypes}
+            />
           )}
           {action === PageAction.EDIT && renderInstanceType()}
         </Form.Item>
       </FieldBlock>
-      {isGPU && (
+      {!noAvailableTypes && (
         <Form.Item<FormData>
-          name={['spec', 'resources', 'accelerator']}
+          key={isGPUType ? 'accelerator' : 'cpu'}
+          name={
+            isGPUType
+              ? ['spec', 'resources', 'accelerator']
+              : ['spec', 'resources', 'cpu']
+          }
+          preserve
           hidden={action === PageAction.EDIT}
           normalize={(value) => (value != null ? _.toString(value) : undefined)}
           getValueProps={(value) => ({
@@ -170,12 +216,12 @@ const InstanceTypeFormItem: React.FC<InstanceTypeFormItemProps> = ({
               required: true,
               validator: (_, value) => {
                 const num = Number(value);
-                if (num > maxGpuCount) {
+                if (num > maxComputeUnitCount) {
                   return Promise.reject(
                     new Error(
                       intl.formatMessage(
-                        { id: 'gpuservice.instance.gpuCount.max' },
-                        { count: maxGpuCount }
+                        { id: numberSelectionLabel.maxLabel },
+                        { count: maxComputeUnitCount }
                       )
                     )
                   );
@@ -184,7 +230,7 @@ const InstanceTypeFormItem: React.FC<InstanceTypeFormItemProps> = ({
                   return Promise.reject(
                     new Error(
                       intl.formatMessage(
-                        { id: 'gpuservice.instance.gpuCount.min' },
+                        { id: numberSelectionLabel.minLabel },
                         { count: 0 }
                       )
                     )
@@ -198,66 +244,53 @@ const InstanceTypeFormItem: React.FC<InstanceTypeFormItemProps> = ({
           <NumberSelection
             min={1}
             onChange={handleOnGPUCountChange}
-            max={maxGpuCount}
+            max={maxComputeUnitCount}
             step={1}
             required
-            tips={intl.formatMessage({
-              id: 'gpuservice.instance.gpuCount.zero'
-            })}
             disabled={disabled || action === PageAction.EDIT}
-            labelExtra={
-              !maxGpuCount &&
-              action !== PageAction.EDIT && (
-                <Alert
-                  showIcon
-                  type="warning"
-                  title={intl.formatMessage({
-                    id: 'gpuservice.instance.gpuCount.noAvailable'
-                  })}
-                  styles={{
-                    root: {
-                      marginLeft: 4,
-                      paddingBlock: 0
-                    }
-                  }}
-                ></Alert>
-              )
-            }
-            label={`${intl.formatMessage({ id: 'gpuservice.instance.gpuCount' })} (${intl.formatMessage(
+            label={`${intl.formatMessage({ id: 'common.max.count' }, { label: numberSelectionLabel.label })} (${intl.formatMessage(
               {
                 id: 'common.max'
               },
-              { count: maxGpuCount }
+              { count: maxComputeUnitCount }
             )})`}
           />
         </Form.Item>
       )}
-      <Flex gap={12}>
-        <div style={{ flex: 1 }}>
-          <Form.Item<FormData>
-            name={['spec', 'resources', 'ram']}
-            normalize={(value) => (value ? `${value}Gi` : null)}
-            getValueProps={(value) => ({
-              value: _.toString(value).replace(/Gi$/, '')
-            })}
-          >
-            <InputNumber
-              disabled={isGPU || disabled || action === PageAction.EDIT}
-              label={renderMemoryLabel()}
-              max={onceMaxRequest?.memory ?? undefined}
-            />
-          </Form.Item>
-        </div>
-        <div style={{ flex: 1 }}>
-          <Form.Item<FormData> name={['spec', 'resources', 'cpu']}>
-            <InputNumber
-              label={renderMaxLabel('CPU', onceMaxRequest?.cpu)}
-              max={onceMaxRequest?.cpu ?? undefined}
-              disabled={disabled || isGPU || action === PageAction.EDIT}
-            />
-          </Form.Item>
-        </div>
-      </Flex>
+      {!noAvailableTypes && (
+        <Flex gap={12}>
+          <div style={{ flex: 1 }}>
+            <Form.Item<FormData>
+              name={['spec', 'resources', 'ram']}
+              normalize={(value) => (value ? `${value}Gi` : null)}
+              getValueProps={(value) => ({
+                value: _.toString(value).replace(/Gi$/, '')
+              })}
+            >
+              <InputNumber
+                disabled={true}
+                label={intl.formatMessage({ id: 'gpuservice.template.memory' })}
+                max={onceMaxRequest?.memory ?? undefined}
+              />
+            </Form.Item>
+          </div>
+          {isGPUType && (
+            <div style={{ flex: 1 }}>
+              <Form.Item<FormData>
+                name={['spec', 'resources', 'cpu']}
+                key="cpu_input"
+                preserve
+              >
+                <InputNumber
+                  label={'CPU'}
+                  max={onceMaxRequest?.cpu ?? undefined}
+                  disabled={true}
+                />
+              </Form.Item>
+            </div>
+          )}
+        </Flex>
+      )}
     </div>
   );
 };

@@ -39,7 +39,7 @@ export default {
   'clusters.workerpool.batchSize.desc':
     'Количество воркеров, создаваемых одновременно в пуле воркеров',
   'clusters.create.addworker.tips':
-    'Пожалуйста, убедитесь, что выполнены <a href={link} target="_blank">предварительные условия</a> для {label} перед выполнением следующей команды.',
+    'Пожалуйста, убедитесь, что выполнены <a href={link} target="_blank">предварительные условия</a> перед выполнением следующей команды.',
   'clusters.create.addCommand.tips':
     'На воркере, который необходимо добавить, выполните следующую команду, чтобы присоединить его к кластеру.',
   'clusters.create.addCommand.k8s.tips':
@@ -70,8 +70,13 @@ export default {
     'Для <span class="bold-text">не-Docker</span> кластеров, пожалуйста, регистрируйте кластеры или управляйте пулами воркеров на странице Кластеры.',
   'clusters.addworker.selectGPU': 'Выбрать производителя GPU',
   'clusters.addworker.selectGPU.multiTag': 'Multi-select',
+  'clusters.addworker.selectGPU.subtitle':
+    'Вы можете выбрать несколько производителей GPU или не выбирать для кластера только с CPU',
   'clusters.addworker.checkEnv': 'Проверить окружение',
+  'clusters.addworker.checkEnv.cpuOnlyTips':
+    'Используйте следующую команду, чтобы убедиться, что в кластере Kubernetes есть хотя бы один готовый узел. Вы регистрируете кластер только с CPU.',
   'clusters.addworker.specifyArgs': 'Указать аргументы',
+  'clusters.addworker.dtkVersion': 'Версия DTK',
   'clusters.addworker.runCommand': 'Выполнить команду',
   'clusters.addworker.specifyWorkerIP': 'Указать IP воркера',
   'clusters.addworker.detectWorkerIP': 'Автоматически определить IP воркера',
@@ -110,6 +115,8 @@ export default {
     '{count} новых воркеров были добавлены в кластер.',
   'clusters.create.serverUrl': 'URL сервера GPUStack',
   'clusters.create.workerConfig': 'Конфигурация воркера',
+  'clusters.edit.k8sOptions.changed.tip':
+    'Вы изменили параметры Kubernetes. Чтобы изменения вступили в силу, повторно выполните команду регистрации в целевом кластере.',
   'clusters.addworker.containerName': 'Имя контейнера воркера',
   'clusters.addworker.containerName.tips':
     'Укажите имя для контейнера воркера.',
@@ -138,7 +145,7 @@ export default {
   'clusters.addworker.theadNotes-02':
     'T-Head PPU uses the Container Device Interface (CDI) for device injection and requires the <span class="bold-text">/var/run/cdi</span> directory to be available for CDI generation.',
   'clusters.addworker.nvidiaNotes':
-    'The built-in inference backends in GPUStack v2.1 require <span class="bold-text">CUDA 12.6+</span>. Please ensure your NVIDIA driver version is <span class="bold-text">560</span> or newer.',
+    'The built-in inference backends in GPUStack require <span class="bold-text">CUDA 12.8+</span>. Please ensure your NVIDIA driver version is <span class="bold-text">570</span> or newer.',
   'clusters.volume.title': 'Volume Mounts',
   'clusters.volume.name': 'Volume Name',
   'clusters.volume.mountPath': 'Container Path',
@@ -181,9 +188,14 @@ export default {
   'clusters.namespace.title': 'Namespace',
   'clusters.namespace.tip':
     'Kubernetes namespace the cluster’s manifests render into. Leave empty to use gpustack-system.',
-  'clusters.gpuInstances.title': 'GPU Instance Service',
-  'clusters.gpuInstances.tip': 'Enable GPU instance support for this cluster.',
-  'clusters.gpuInstances.staticAddress': 'Static Access Address',
+  'clusters.clusterType.title': 'Cluster Type',
+  'clusters.modelService.title': 'Model Service',
+  'clusters.modelService.tip':
+    'For LLM inference and API serving — e.g. exposing model APIs and token-based services.',
+  'clusters.gpuInstances.title': 'GPU Service',
+  'clusters.gpuInstances.tip':
+    'For on-demand GPU compute — e.g. interactive development, training jobs, or custom environments.',
+  'clusters.gpuInstances.staticAddress': 'GPU Service Static Access Address',
   'clusters.gpuInstances.staticAddress.tip':
     'Static address the operator uses to access GPU instances in this cluster (e.g. a LoadBalancer VIP). Optional.'
 };
