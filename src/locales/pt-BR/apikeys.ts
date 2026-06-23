@@ -23,5 +23,7 @@ export default {
   'apikeys.accessScope.inference': 'APIs de Inferência',
   'apikeys.access.permissions': 'Permissões de Acesso',
   'apikeys.type.auto': 'Gerada automaticamente',
-  'apikeys.type.custom': 'Personalizada'
+  'apikeys.type.custom': 'Personalizada',
+  'apikeys.button.ipConfig': 'Controle de Acesso por IP',
+  'quotaLimits.button.title': 'Limite de Cota'
 };

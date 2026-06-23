@@ -190,5 +190,16 @@ export default {
     'Habilitar suporte a instância de GPU para este cluster.',
   'clusters.gpuInstances.staticAddress': 'Endereço de Acesso Estático',
   'clusters.gpuInstances.staticAddress.tip':
-    'Endereço estático que o operador usa para acessar instâncias de GPU neste cluster (ex: um LoadBalancer VIP). Opcional.'
+    'Endereço estático que o operador usa para acessar instâncias de GPU neste cluster (ex: um LoadBalancer VIP). Opcional.',
+  'clusters.addworker.selectGPU.subtitle':
+    'Você pode selecionar múltiplos fabricantes de GPU ou nenhum para clusters apenas de CPU',
+  'clusters.addworker.checkEnv.cpuOnlyTips':
+    'Use o comando a seguir para verificar se o cluster Kubernetes tem pelo menos um nó pronto. Você está registrando um cluster apenas de CPU.',
+  'clusters.addworker.dtkVersion': 'Versão DTK',
+  'clusters.edit.k8sOptions.changed.tip':
+    'Você alterou as opções do Kubernetes. Re-execute o comando de registro no cluster de destino para que as alterações tenham efeito.',
+  'clusters.clusterType.title': 'Tipo de Cluster',
+  'clusters.modelService.title': 'Serviço de Modelos',
+  'clusters.modelService.tip':
+    'Para inferência de LLM e serviço de API — ex: expor APIs de modelos e serviços baseados em tokens.'
 };

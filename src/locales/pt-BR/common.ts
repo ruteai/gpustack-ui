@@ -290,5 +290,15 @@ export default {
   'common.image.limit.height': 'A altura da imagem deve ser {height}.',
   'common.remaining': 'Restante {count}',
   'common.max': 'Máx {count}',
-  'common.validate.group': 'Por favor complete a configuração de {group}'
+  'common.max.count': 'Contagem de {label}',
+  'common.validate.group': 'Por favor complete a configuração de {group}',
+  'common.preferences': 'Preferências',
+  'common.enterprise.feature': 'Disponível no GPUStack Enterprise',
+  'common.table.creator': 'Criador',
+  'common.filter.byCreator': 'Filtrar por criador',
+  'common.github.star.tooltip': 'Dê uma estrela no GitHub',
+  'common.login.username.holder': 'Por favor insira o nome de usuário',
+  'common.login.password.holder': 'Por favor insira a senha',
+  'common.login.newpassword.holder': 'Por favor insira a nova senha',
+  'common.login.confirm.holder': 'Por favor insira a senha novamente'
 };

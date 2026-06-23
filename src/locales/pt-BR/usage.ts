@@ -17,9 +17,15 @@ export default {
   'usage.table.user.apiKeysUsed': 'Chaves de API Utilizadas',
   'usage.table.lastActive': 'Última Atividade',
   'usage.filter.granularity': 'Granularidade',
+  'usage.filter.granularity.hour': 'Hora',
   'usage.filter.granularity.day': 'Dia',
   'usage.filter.granularity.week': 'Semana',
   'usage.filter.granularity.month': 'Mês',
+  'usage.tabs.summary': 'Resumo',
+  'usage.tabs.tokens': 'Tokens',
+  'usage.tabs.gpuInstances': 'Instâncias de GPU',
+  'usage.tabs.storage': 'Armazenamento',
+  'usage.tabs.resourceEvents': 'Eventos de Recursos',
   'usage.tabs.models': 'Modelos',
   'usage.tabs.apikeys': 'Chaves de API',
   'usage.tabs.users': 'Usuário',
@@ -32,5 +38,70 @@ export default {
   'usage.chart.cached': 'Em cache',
   'usage.chart.uncached': 'Sem cache',
   'usage.chart.inputTokensCached': 'Tokens de Entrada (Em cache/Sem cache)',
-  'usage.table.inputTokensCached': 'Tokens de Entrada em Cache'
+  'usage.table.inputTokensCached': 'Tokens de Entrada em Cache',
+
+  // --- Resource usage: shared metrics & units ---
+  'usage.metric.tokens': 'Tokens',
+  'usage.metric.input': 'Entrada',
+  'usage.metric.output': 'Saída',
+  'usage.metric.gpuHours': 'Horas de GPU',
+  'usage.metric.instanceHours': 'Horas de Instância',
+  'usage.metric.gbDays': 'GB-Dias',
+  'usage.metric.gbHours': 'GB-Horas',
+  'usage.metric.activeUsers': 'Usuários Ativos',
+  'usage.metric.activeInstances': 'Instâncias Ativas',
+  'usage.metric.activeStorage': 'Armazenamento Ativo',
+  'usage.metric.activeVolumes': 'Volumes Ativos',
+  'usage.metric.storageTypes': 'Tipos de Armazenamento',
+  'usage.metric.gpuHours.tip':
+    'Tempo de execução da instância ponderado pela contagem de GPU: uma instância com N GPUs executando por H horas conta como N × H horas de GPU. Igual a Horas de Instância quando cada instância usa uma única GPU.',
+  'usage.metric.instanceHours.tip':
+    'Tempo total de execução somado entre todas as instâncias, independentemente de quantas GPUs cada uma usa. Uma instância executando por 2 horas = 2 horas de instância.',
+  'usage.metric.gbDays.tip':
+    'Capacidade de armazenamento integrada ao longo do tempo, em GB × dias: 10 GB mantidos por 5 dias = 50 GB-dias. (= GB-Horas ÷ 24)',
+  'usage.metric.gbHours.tip':
+    'Capacidade de armazenamento integrada ao longo do tempo, em GB × horas: 10 GB mantidos por 5 horas = 50 GB-horas.',
+
+  // --- Resource usage: common table / labels ---
+  'usage.common.noData': 'Sem dados',
+  'usage.common.unknown': 'desconhecido',
+  'usage.table.date': 'Data',
+  'usage.table.name': 'Nome',
+  'usage.table.user': 'Usuário',
+  'usage.table.users': 'Usuários',
+  'usage.table.type': 'Tipo',
+  'usage.table.instance': 'Instância',
+  'usage.table.instanceType': 'Tipo de Instância',
+  'usage.table.instanceTypes': 'Tipos de Instância',
+  'usage.table.instances': 'Instâncias',
+  'usage.table.capacity': 'Capacidade',
+  'usage.export.tableNamed': 'Exportar Dados da Tabela — {name}',
+
+  // --- Summary tab ---
+  'usage.summary.compute': 'Computação',
+  'usage.summary.tokensOverTime': 'Tokens ao longo do tempo',
+  'usage.summary.gpuHoursOverTime': 'Horas de GPU ao longo do tempo',
+  'usage.summary.gbDaysOverTime': 'GB-Dias ao longo do tempo',
+
+  // --- GPU Instances / Storage filters ---
+  'usage.filter.instance': 'Filtrar por instância',
+  'usage.filter.storage': 'Filtrar por armazenamento',
+
+  // --- Resource events ---
+  'usage.events.resourceType': 'Tipo de recurso',
+  'usage.events.eventType': 'Tipo de evento',
+  'usage.events.resourceName': 'Filtrar por nome',
+  'usage.events.col.time': 'Tempo',
+  'usage.events.col.resource': 'Recurso',
+  'usage.events.col.event': 'Evento',
+  'usage.events.col.message': 'Mensagem',
+  'usage.events.resource.gpuInstance': 'Instância de GPU',
+  'usage.events.resource.cpuInstance': 'Instância de CPU',
+  'usage.events.type.created': 'Criado',
+  'usage.events.type.deleted': 'Excluído',
+  'usage.events.type.started': 'Iniciado',
+  'usage.events.type.stopped': 'Parado',
+  'usage.events.type.updated': 'Atualizado',
+  'usage.events.type.attached': 'Anexado',
+  'usage.events.type.detached': 'Desanexado'
 };

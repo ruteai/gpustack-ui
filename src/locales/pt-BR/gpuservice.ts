@@ -14,6 +14,8 @@ export default {
     'Separe argumentos com espaços; envolva argumentos contendo espaços em aspas, ex: /bin/bash -c "echo hello world"',
   'gpuservice.template.mountPath': 'Caminho de Montagem',
   'gpuservice.template.containerDisk': 'Disco do Container (GB)',
+  'gpuservice.template.containerDisk.tips':
+    'O tamanho do disco do sistema do container.',
   'gpuservice.template.memory': 'Memória (GB)',
   'gpuservice.instance.containerDisk.remaining':
     'Disco do Container (Máx {count} GB)',
@@ -100,6 +102,7 @@ export default {
   'gpuservice.instance.section.storage': 'Armazenamento',
   'gpuservice.instance.type.required':
     'Por favor selecione um tipo de instância',
+  'gpuservice.instance.type.noAvailable': 'Nenhum tipo de instância disponível',
   'gpuservice.instance.gpuCount': 'Contagem de GPU',
   'gpuservice.instance.gpuCount.required': 'Por favor insira a contagem de GPU',
   'gpuservice.instance.gpuCount.max':
@@ -162,5 +165,22 @@ export default {
   'gpuservice.storage.tempCapacity.required':
     'Por favor insira a capacidade de armazenamento temporário',
   'gpuservice.form.rule.name':
-    "Letras minúsculas, números e '-'. Comece e termine com uma letra ou número, sem '-' consecutivos, máx 63 caracteres."
+    "Letras minúsculas, números e '-'. Comece e termine com uma letra ou número, sem '-' consecutivos, máx 63 caracteres.",
+  'gpuservice.form.storage.select': 'Selecionar Armazenamento',
+  'gpuservice.template.mountPath.tips':
+    'O caminho de montagem padrão para o volume de armazenamento ao criar uma instância a partir deste modelo. Útil para persistir dados que precisam ser mantidos enquanto a instância está em execução.',
+  'gpuservice.instance.cpuCount.max':
+    'Por favor selecione no máximo {count} núcleo(s) de CPU',
+  'gpuservice.instance.cpuCount.min':
+    'Por favor selecione pelo menos {count} núcleo(s) de CPU',
+  'gpuservice.instance.os': 'SO',
+  'gpuservice.instance.arch': 'Arquitetura',
+  'gpuservice.table.count': 'Contagem',
+  'gpuservice.instance.disk.system': 'Disco do Sistema',
+  'gpuservice.instance.disk.ephemeral': 'Armazenamento Efêmero',
+  'gpuservice.instance.disk.persistent': 'Armazenamento Persistente',
+  'gpuservice.creator': 'Criador',
+  'gpuservice.owner.global': 'Global',
+  'gpuservice.template.group.yours': 'Seus Modelos',
+  'gpuservice.template.group.global': 'Modelos Globais'
 };

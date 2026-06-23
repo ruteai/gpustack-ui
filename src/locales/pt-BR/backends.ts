@@ -23,10 +23,11 @@ export default {
   'backend.form.defaultExecuteCommand': 'Comando de Execução Padrão',
   'backend.form.defaultExecuteCommand.tips': `'{{'model_path'}}', '{{'port'}}', '{{'worker_ip'}}' e '{{'model_name'}}' são marcadores que serão substituídos pelos valores reais durante a implantação.`,
   'backend.form.defaultBackendParameters': 'Parâmetros Padrão do Backend',
-  'backend.form.parameterFormat': 'Formato de Parâmetro',
-  'backend.form.parameterFormat.default': 'Padrão do Backend',
-  'backend.form.parameterFormat.space': 'Espaço (--key value)',
-  'backend.form.parameterFormat.equal': 'Igual (--key=value)',
+  'backend.form.flagFormat': 'Formato de Flag',
+  'backend.form.flagFormat.tips':
+    'O formato aplicado entre uma opção e seu valor. Deixe vazio para manter cada parâmetro conforme digitado, sem normalizá-lo.',
+  'backend.form.flagFormat.space': 'Espaço Separado (--key value)',
+  'backend.form.flagFormat.equal': 'Sinal de Igual (--key=value)',
   'backend.form.commonParameters': 'Parâmetros Comuns',
   'backend.form.commonParameters.tips':
     'Exibidos como sugestões na entrada de parâmetros do backend durante a implantação.',
