@@ -25,7 +25,8 @@ import TokenTab from './token-tab';
 const Usage: React.FC = () => {
   const access = useAccess();
   const intl = useIntl();
-  // Land on the cross-resource Summary by default.
+
+  const canSeeGpuService = !!access?.canSeeGpuService;
   const [activeKey, setActiveKey] = useState<string>('summary');
 
   const items: TabsProps['items'] = useMemo(() => {
@@ -67,7 +68,13 @@ const Usage: React.FC = () => {
       if (!item.access) return true;
       return (access as Record<string, boolean>)[item.access];
     });
-  }, [intl, access]);
+  }, [intl, access.canSeeGpuService]);
+
+  // Only the Tokens tab is available — render it on its own without the
+  // single-item tab bar.
+  if (!canSeeGpuService) {
+    return <TokenTab />;
+  }
 
   return (
     <Tabs

@@ -21,7 +21,7 @@
  * each domain's natural unit (tokens / GPU-Hours / GB-Days); a true
  * cross-resource split needs a common unit.
  */
-import useCoolColors from '@/hooks/use-cool-colors';
+import { useCoolAccents } from '@/hooks/use-cool-colors';
 import BarChart from '@/pages/_components/bar-chart';
 import PieChart from '@/pages/_components/pie-chart';
 import { formatLargeNumber } from '@/utils';
@@ -209,7 +209,8 @@ const SummaryTab: React.FC = () => {
   const access = useAccess();
   const intl = useIntl();
   const t = (id: string) => intl.formatMessage({ id });
-  const coolColors = useCoolColors()(8);
+  // One vivid primary per summary card (Tokens / Compute / Storage).
+  const coolColors = useCoolAccents()(3);
 
   // No All/My dropdown (matches the Tokens tab): managers see the org-wide
   // view and narrow it with the user filter, others only their own rows.
@@ -298,16 +299,21 @@ const SummaryTab: React.FC = () => {
         filters: creatorFilter
       }),
 
+      // Date-bucketed trends: fetch the whole series via the no-pagination
+      // sentinel (page: -1). A metric-desc page would drop low-traffic (often
+      // most recent) buckets and leave gaps in the chart.
       fetchTokenSeries({
         ...commonParams,
         metric: 'total_tokens',
         group_by: ['date'],
         granularity,
+        page: -1,
         filters: {}
       }),
 
       fetchComputeBreakdown({
         ...paginationParams,
+        page: -1,
         group_by: ['date'],
         granularity,
         filters: creatorFilter
@@ -315,6 +321,7 @@ const SummaryTab: React.FC = () => {
 
       fetchStorageByDate({
         ...paginationParams,
+        page: -1,
         group_by: ['date'],
         granularity,
         filters: creatorFilter
@@ -499,13 +506,13 @@ const SummaryTab: React.FC = () => {
         <Col span={24}>
           <DomainSection
             title={t('usage.tabs.storage')}
-            accent={coolColors[3]}
+            accent={coolColors[2]}
             donutData={storageDonut}
             donutTotalLabel={t('usage.metric.gbDays')}
             trendTitle={t('usage.summary.gbDaysOverTime')}
             trendXAxis={storageTrend.xAxis}
             trendData={storageTrend.data}
-            trendColor={coolColors[3]}
+            trendColor={coolColors[2]}
             trendGran={granularity}
             pieLoading={storageByTypeLoading}
             barLoading={storageByDateLoading}
